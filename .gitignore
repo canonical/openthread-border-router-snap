@@ -1,0 +1,5 @@
+*.snap
+squashfs-root
+parts/*
+prime/*
+stage/*

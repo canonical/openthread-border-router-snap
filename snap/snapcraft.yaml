@@ -1,0 +1,146 @@
+name: openthread-border-router
+version: git
+license: TBA
+summary: Snap packaging of OpenThread Border Router project for POSIX systems
+description: Refer to https://snapcraft.io/openthread-border-router
+
+base: core22
+
+architectures:
+  - build-on: amd64
+  - build-on: arm64
+
+grade: devel
+confinement: devmode
+
+lint:
+  ignore:
+    - library:
+      - $SNAP/lib/libdbus-1.so.3.19.13
+
+apps:
+  otbr-agent:
+    command: bin/otbr-agent
+    daemon: simple
+    install-mode: disable
+    restart-delay: 10s
+    environment:
+      LD_LIB: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET
+      LD_LIBRARY_PATH: $LD_LIBRARY_PATH:$SNAP/usr/lib:$SNAP/lib:$SNAP/usr/lib/libdns_sd.so:$SNAP/lib/libdns_sd.so:$SNAP/lib/libdns_sd.so.1
+       
+    plugs: 
+      - network
+      - network-bind
+      - bluez
+      - avahi-control
+  otbr-web:
+    command: bin/otbr-web
+    daemon: simple
+    install-mode: disable
+    restart-delay: 3s
+    plugs: 
+      - network
+      - network-bind
+      - bluez
+      - avahi-control
+  otbr-firewall:
+    command: bin/otbr-firewall
+    daemon: simple
+    install-mode: disable
+    restart-delay: 3s
+    plugs: 
+      - network
+      - network-bind
+      - bluez
+      - avahi-control
+  ot-ctl:
+    command: bin/ot-ctl
+    daemon: simple
+    install-mode: disable
+    restart-delay: 3s
+    plugs: 
+      - home
+      - network
+      - network-bind
+  # otbr-nat44
+  
+
+parts:
+  openthread-deps:
+    source: https://github.com/openthread/ot-br-posix.git
+    source-branch: main
+    source-depth: 1
+    plugin: cmake
+    build-snaps:
+    - cmake
+    build-packages: 
+      - build-essential
+      - ninja-build
+      - libreadline-dev
+      - libcpputest-dev
+      - pkg-config
+      - python3-dev
+      - lsb-release
+      - sudo
+
+    stage-packages:
+      - libavahi-common-dev
+      - libavahi-client-dev
+      
+    build-environment:
+      - LD_LIB: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET
+      - LD_LIBRARY_PATH: $SNAP/usr/lib:$SNAP/lib:$SNAP/usr/lib/libdns_sd.so:$SNAP/lib/libdns_sd.so:$SNAP/lib/libdns_sd.so.1
+    override-build: |
+      craftctl default
+
+      mkdir -p $CRAFT_PART_INSTALL/bin
+
+      cd $CRAFT_PART_SRC
+
+
+      # Install OpenThread dependencies
+      ./script/bootstrap
+
+  ot-br-posix:
+    after: [openthread-deps]
+    plugin: nil
+    build-snaps:
+    - cmake
+    build-packages: 
+      - build-essential
+      - ninja-build
+      - libreadline-dev
+      - libcpputest-dev
+      - pkg-config
+      - python3-dev
+      - lsb-release
+      - sudo
+      - libavahi-compat-libdnssd-dev
+      - libavahi-compat-libdnssd1
+
+    stage-packages:
+      - libavahi-common-dev
+      - libavahi-client-dev
+      - libjsoncpp-dev
+      
+      
+    # build-environment: [INFRA_IF_NAME: eth0] 
+    build-environment:
+      - LD_LIB: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET
+      - LD_LIBRARY_PATH: $SNAP/usr/lib:$SNAP/lib:$SNAP/usr/lib/libdns_sd.so:$SNAP/lib/libdns_sd.so:$SNAP/lib/libdns_sd.so.1
+    override-build: |
+      craftctl default
+      cd ../../openthread-deps/src
+
+      # Compile and install OTBR
+      INFRA_IF_NAME=eth0 BACKBONE_ROUTER=0 ./script/setup
+
+      # install -DT "$CRAFT_PART_SRC/LICENSE" "$CRAFT_PART_INSTALL/usr/share/doc/ot-br-posix/LICENSE"
+      mkdir -p $CRAFT_PART_INSTALL/bin
+
+      cp ./build/otbr/src/agent/otbr-agent $CRAFT_PART_INSTALL/bin/
+      cp ./build/otbr/src/web/otbr-web $CRAFT_PART_INSTALL/bin/
+      cp ./build/otbr/third_party/openthread/repo/src/posix/ot-ctl $CRAFT_PART_INSTALL/bin/
+
+      chmod a+x ./script/otbr-firewall
+      cp ./script/otbr-firewall $CRAFT_PART_INSTALL/bin/
