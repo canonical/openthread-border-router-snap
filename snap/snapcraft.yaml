@@ -1,6 +1,6 @@
 name: openthread-border-router
 version: git
-license: TBA
+# license: TBA
 summary: Snap packaging of OpenThread Border Router project for POSIX systems
 description: Refer to https://snapcraft.io/openthread-border-router
 
@@ -22,11 +22,12 @@ apps:
   otbr-agent:
     command: bin/otbr-agent
     daemon: simple
-    install-mode: disable
+    install-mode: enable
     restart-delay: 10s
     environment:
       LD_LIB: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET
       LD_LIBRARY_PATH: $LD_LIBRARY_PATH:$SNAP/usr/lib:$SNAP/lib:$SNAP/usr/lib/libdns_sd.so:$SNAP/lib/libdns_sd.so:$SNAP/lib/libdns_sd.so.1
+      LDFLAGS: -L/usr/lib/libdns_sd.so
        
     plugs: 
       - network
@@ -36,7 +37,7 @@ apps:
   otbr-web:
     command: bin/otbr-web
     daemon: simple
-    install-mode: disable
+    install-mode: enable
     restart-delay: 3s
     plugs: 
       - network
@@ -46,7 +47,7 @@ apps:
   otbr-firewall:
     command: bin/otbr-firewall
     daemon: simple
-    install-mode: disable
+    install-mode: enable
     restart-delay: 3s
     plugs: 
       - network
@@ -56,7 +57,7 @@ apps:
   ot-ctl:
     command: bin/ot-ctl
     daemon: simple
-    install-mode: disable
+    install-mode: enable
     restart-delay: 3s
     plugs: 
       - home
@@ -83,10 +84,6 @@ parts:
       - lsb-release
       - sudo
 
-    stage-packages:
-      - libavahi-common-dev
-      - libavahi-client-dev
-      
     build-environment:
       - LD_LIB: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET
       - LD_LIBRARY_PATH: $SNAP/usr/lib:$SNAP/lib:$SNAP/usr/lib/libdns_sd.so:$SNAP/lib/libdns_sd.so:$SNAP/lib/libdns_sd.so.1
@@ -115,13 +112,11 @@ parts:
       - python3-dev
       - lsb-release
       - sudo
-      - libavahi-compat-libdnssd-dev
-      - libavahi-compat-libdnssd1
+      - libavahi-client-dev
 
     stage-packages:
-      - libavahi-common-dev
-      - libavahi-client-dev
       - libjsoncpp-dev
+      - libavahi-client3
       
       
     # build-environment: [INFRA_IF_NAME: eth0] 
