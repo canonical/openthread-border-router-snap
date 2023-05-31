@@ -24,10 +24,6 @@ apps:
     daemon: simple
     install-mode: enable
     restart-delay: 10s
-    environment:
-      LD_LIB: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET
-      LD_LIBRARY_PATH: $LD_LIBRARY_PATH:$SNAP/usr/lib:$SNAP/lib:$SNAP/usr/lib/libdns_sd.so:$SNAP/lib/libdns_sd.so:$SNAP/lib/libdns_sd.so.1
-      LDFLAGS: -L/usr/lib/libdns_sd.so
        
     plugs: 
       - network
@@ -45,7 +41,7 @@ apps:
       - bluez
       - avahi-control
   otbr-firewall:
-    command: bin/otbr-firewall
+    command: bin/otbr-firewall start
     daemon: simple
     install-mode: enable
     restart-delay: 3s
@@ -76,37 +72,6 @@ parts:
     - cmake
     build-packages: 
       - build-essential
-      - ninja-build
-      - libreadline-dev
-      - libcpputest-dev
-      - pkg-config
-      - python3-dev
-      - lsb-release
-      - sudo
-
-    build-environment:
-      - LD_LIB: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET
-      - LD_LIBRARY_PATH: $SNAP/usr/lib:$SNAP/lib:$SNAP/usr/lib/libdns_sd.so:$SNAP/lib/libdns_sd.so:$SNAP/lib/libdns_sd.so.1
-    override-build: |
-      craftctl default
-
-      mkdir -p $CRAFT_PART_INSTALL/bin
-
-      cd $CRAFT_PART_SRC
-
-
-      # Install OpenThread dependencies
-      ./script/bootstrap
-
-  ot-br-posix:
-    after: [openthread-deps]
-    plugin: nil
-    build-snaps:
-    - cmake
-    build-packages: 
-      - build-essential
-      - ninja-build
-      - libreadline-dev
       - libcpputest-dev
       - pkg-config
       - python3-dev
@@ -114,15 +79,26 @@ parts:
       - sudo
       - libavahi-client-dev
 
+    override-build: |
+      craftctl default
+
+      mkdir -p $CRAFT_PART_INSTALL/bin
+
+      cd $CRAFT_PART_SRC
+
+      # Install OpenThread dependencies
+      ./script/bootstrap
+
+  ot-br-posix:
+    after: [openthread-deps]
+    plugin: nil
     stage-packages:
       - libjsoncpp-dev
       - libavahi-client3
-      
+      - protobuf-compiler
+      - ipset
       
     # build-environment: [INFRA_IF_NAME: eth0] 
-    build-environment:
-      - LD_LIB: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET
-      - LD_LIBRARY_PATH: $SNAP/usr/lib:$SNAP/lib:$SNAP/usr/lib/libdns_sd.so:$SNAP/lib/libdns_sd.so:$SNAP/lib/libdns_sd.so.1
     override-build: |
       craftctl default
       cd ../../openthread-deps/src
@@ -139,3 +115,6 @@ parts:
 
       chmod a+x ./script/otbr-firewall
       cp ./script/otbr-firewall $CRAFT_PART_INSTALL/bin/
+
+      mkdir -p $CRAFT_PART_INSTALL/lib
+      cp -v /usr/lib/ $CRAFT_PART_INSTALL/usr/lib/
