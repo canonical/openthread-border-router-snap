@@ -24,7 +24,6 @@ apps:
     daemon: simple
     install-mode: enable
     restart-delay: 10s
-       
     plugs: 
       - network
       - network-bind
@@ -59,9 +58,15 @@ apps:
       - home
       - network
       - network-bind
-  # otbr-nat44
+  otbr-nat44:
+    command: bin/otbr-nat44 start
+    daemon: simple
+    install-mode: enable
+    restart-delay: 10s
+    plugs: 
+      - network
+      - network-bind
   
-
 parts:
   openthread-deps:
     source: https://github.com/openthread/ot-br-posix.git
@@ -109,6 +114,10 @@ parts:
       # install -DT "$CRAFT_PART_SRC/LICENSE" "$CRAFT_PART_INSTALL/usr/share/doc/ot-br-posix/LICENSE"
       mkdir -p $CRAFT_PART_INSTALL/bin
 
+      # Copy library
+      cp -v /usr/lib/libdns_sd.so $CRAFT_PART_INSTALL/usr/lib/
+
+      # Configure and copy executables
       cp ./build/otbr/src/agent/otbr-agent $CRAFT_PART_INSTALL/bin/
       cp ./build/otbr/src/web/otbr-web $CRAFT_PART_INSTALL/bin/
       cp ./build/otbr/third_party/openthread/repo/src/posix/ot-ctl $CRAFT_PART_INSTALL/bin/
@@ -116,5 +125,6 @@ parts:
       chmod a+x ./script/otbr-firewall
       cp ./script/otbr-firewall $CRAFT_PART_INSTALL/bin/
 
-      mkdir -p $CRAFT_PART_INSTALL/lib
-      cp -v /usr/lib/ $CRAFT_PART_INSTALL/usr/lib/
+      cp -v /etc/init.d/otbr-nat44 $CRAFT_PART_INSTALL/bin/
+
+
