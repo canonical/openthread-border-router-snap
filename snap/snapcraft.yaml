@@ -13,11 +13,6 @@ architectures:
 grade: devel
 confinement: devmode
 
-lint:
-  ignore:
-    - library:
-      - $SNAP/lib/libdbus-1.so.3.19.13
-
 apps:
   otbr-setup:
     command: bin/otbr-setup.sh
