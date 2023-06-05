@@ -121,34 +121,42 @@ parts:
   ot-br-posix:
     after: [openthread-deps]
     plugin: nil
-    stage-packages:
-      - libjsoncpp-dev
-      - libavahi-client3
-      - protobuf-compiler
-      - ipset
-      
-    # build-environment: [INFRA_IF_NAME: eth0] 
+    source: local/bin
+    build-packages: 
+      - sudo
+      - lsb-release
+      - kmod
+      - iptables
+      - xtables-addons-common
     override-build: |
       craftctl default
-      cd ../../openthread-deps/src
+      
+      cd $CRAFT_PART_BUILD
 
-      # Compile and install OTBR
-      INFRA_IF_NAME=eth0 BACKBONE_ROUTER=0 ./script/setup
+      cp -vf ./otbr-build.sh ../../openthread-deps/src/script
+      cd ../../openthread-deps
 
-      # install -DT "$CRAFT_PART_SRC/LICENSE" "$CRAFT_PART_INSTALL/usr/share/doc/ot-br-posix/LICENSE"
-      mkdir -p $CRAFT_PART_INSTALL/bin
+      # This script builds and installs border router and dependencies.
+      chmod +x ./src/script/otbr-build.sh
+      ./src/script/otbr-build.sh
 
+      # Todo: install -DT "$CRAFT_PART_SRC/LICENSE" "$CRAFT_PART_INSTALL/usr/share/doc/ot-br-posix/LICENSE"
       # Copy library
+      mkdir -p $CRAFT_PART_INSTALL/usr/lib/
       cp -v /usr/lib/libdns_sd.so $CRAFT_PART_INSTALL/usr/lib/
 
       # Configure and copy executables
+      mkdir -p $CRAFT_PART_INSTALL/bin
       cp ./build/otbr/src/agent/otbr-agent $CRAFT_PART_INSTALL/bin/
       cp ./build/otbr/src/web/otbr-web $CRAFT_PART_INSTALL/bin/
       cp ./build/otbr/third_party/openthread/repo/src/posix/ot-ctl $CRAFT_PART_INSTALL/bin/
 
       chmod a+x ./script/otbr-firewall
-      cp ./script/otbr-firewall $CRAFT_PART_INSTALL/bin/
+      cp ./src/script/otbr-firewall $CRAFT_PART_INSTALL/bin/
 
       cp -v /etc/init.d/otbr-nat44 $CRAFT_PART_INSTALL/bin/
 
+  runtime-helpers:
+    plugin: dump
+    source: local/runtime-helpers
 
