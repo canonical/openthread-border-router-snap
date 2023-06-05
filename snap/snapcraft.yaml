@@ -19,53 +19,46 @@ lint:
       - $SNAP/lib/libdbus-1.so.3.19.13
 
 apps:
+  otbr-setup:
+    command: bin/otbr-setup.sh
+    daemon: oneshot
+    install-mode: enable
+    restart-delay: 10s
+
   otbr-agent:
+    after: [otbr-setup]
     command: bin/otbr-agent
     daemon: simple
     install-mode: enable
     restart-delay: 10s
-    plugs: 
-      - network
-      - network-bind
-      - bluez
-      - avahi-control
+
   otbr-web:
+    after: [otbr-setup]
     command: bin/otbr-web
     daemon: simple
     install-mode: enable
     restart-delay: 3s
-    plugs: 
-      - network
-      - network-bind
-      - bluez
-      - avahi-control
+
   otbr-firewall:
+    after: [otbr-setup]
     command: bin/otbr-firewall start
     daemon: simple
     install-mode: enable
     restart-delay: 3s
-    plugs: 
-      - network
-      - network-bind
-      - bluez
-      - avahi-control
+
   ot-ctl:
+    after: [otbr-setup]
     command: bin/ot-ctl
     daemon: simple
     install-mode: enable
     restart-delay: 3s
-    plugs: 
-      - home
-      - network
-      - network-bind
+
   otbr-nat44:
+    after: [otbr-setup]
     command: bin/otbr-nat44 start
     daemon: simple
     install-mode: enable
     restart-delay: 10s
-    plugs: 
-      - network
-      - network-bind
   
 parts:
   openthread-deps:
