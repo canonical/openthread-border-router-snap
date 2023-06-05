@@ -63,7 +63,7 @@ apps:
 parts:
   openthread-deps:
     source: https://github.com/openthread/ot-br-posix.git
-    source-branch: main
+    source-tag: thread-reference-20230119
     source-depth: 1
     plugin: cmake
     build-snaps:
