@@ -74,25 +74,49 @@ parts:
     source-depth: 1
     plugin: cmake
     build-snaps:
-    - cmake
+      - cmake
     build-packages: 
+      - wget
+      - libreadline-dev
+      - libncurses-dev
       - build-essential
+      - ninja-build
       - libcpputest-dev
-      - pkg-config
-      - python3-dev
-      - lsb-release
-      - sudo
+      - libdbus-1-dev
+      - libavahi-common-dev 
       - libavahi-client-dev
+      - libjsoncpp-dev
+      - libprotobuf-dev
+      - protobuf-compiler
+
+    stage-packages:
+      - iproute2
+      - iputils-ping
+      - rsyslog
+      - libavahi-client3
+      - iptables
+      - ipset
+      - dnsmasq-base
+      - dnsmasq-utils
+      - network-manager
+      - dhcpcd5
+      - libatm1
 
     override-build: |
       craftctl default
+      cd $CRAFT_PART_BUILD
 
-      mkdir -p $CRAFT_PART_INSTALL/bin
-
-      cd $CRAFT_PART_SRC
-
-      # Install OpenThread dependencies
-      ./script/bootstrap
+      # Install the mDNSResponder library on Linux system
+      MDNS_RESPONDER_SOURCE_NAME=mDNSResponder-1310.80.1
+      wget --no-check-certificate https://github.com/apple-oss-distributions/mDNSResponder/archive/refs/tags/$MDNS_RESPONDER_SOURCE_NAME.tar.gz
+      mkdir -p $MDNS_RESPONDER_SOURCE_NAME
+      tar xvf $MDNS_RESPONDER_SOURCE_NAME.tar.gz -C $MDNS_RESPONDER_SOURCE_NAME --strip-components=1
+      cd $CRAFT_PART_BUILD/$MDNS_RESPONDER_SOURCE_NAME/Clients
+      sed -i '/#include <ctype.h>/a #include <stdarg.h>' dns-sd.c
+      sed -i '/#include <ctype.h>/a #include <sys/param.h>' dns-sd.c
+      cd $CRAFT_PART_BUILD/$MDNS_RESPONDER_SOURCE_NAME/mDNSPosix
+      make os=linux
+      make install os=linux
 
   ot-br-posix:
     after: [openthread-deps]
