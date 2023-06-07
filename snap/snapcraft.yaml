@@ -1,5 +1,5 @@
 name: openthread-border-router
-version: git
+version: "0.1"
 # license: TBA
 summary: Snap packaging of OpenThread Border Router project for POSIX systems
 description: Refer to https://snapcraft.io/openthread-border-router
@@ -38,7 +38,7 @@ apps:
     after: [otbr-setup]
     command: bin/otbr-firewall start
     daemon: simple
-    install-mode: enable
+    install-mode: disable
     restart-delay: 3s
 
   ot-ctl:
@@ -131,20 +131,31 @@ parts:
       # Todo: install -DT "$CRAFT_PART_SRC/LICENSE" "$CRAFT_PART_INSTALL/usr/share/doc/ot-br-posix/LICENSE"
       # Copy library
       mkdir -p $CRAFT_PART_INSTALL/usr/lib/
+      mkdir -p $CRAFT_PART_INSTALL/bin
+      mkdir -p $CRAFT_PART_INSTALL/lib/lsb/
+      mkdir -p $CRAFT_PART_INSTALL/lib/init/
       cp -v /usr/lib/libdns_sd.so $CRAFT_PART_INSTALL/usr/lib/
+      cp -v /lib/lsb/init-functions $CRAFT_PART_INSTALL/lib/lsb/
+      cp -v /lib/init/vars.sh $CRAFT_PART_INSTALL/lib/init/
 
       # Configure and copy executables
-      mkdir -p $CRAFT_PART_INSTALL/bin
-      cp ./build/otbr/src/agent/otbr-agent $CRAFT_PART_INSTALL/bin/
-      cp ./build/otbr/src/web/otbr-web $CRAFT_PART_INSTALL/bin/
-      cp ./build/otbr/third_party/openthread/repo/src/posix/ot-ctl $CRAFT_PART_INSTALL/bin/
+      
+      pwd
+      ls
+      cp ./build/src/agent/otbr-agent $CRAFT_PART_INSTALL/bin/
+      # cp ./build/otbr/src/web/otbr-web $CRAFT_PART_INSTALL/bin/
+      cp ./build/third_party/openthread/repo/src/posix/ot-ctl $CRAFT_PART_INSTALL/bin/
 
-      chmod a+x ./script/otbr-firewall
+      chmod a+x ./src/script/otbr-firewall
       cp ./src/script/otbr-firewall $CRAFT_PART_INSTALL/bin/
 
-      cp -v /etc/init.d/otbr-nat44 $CRAFT_PART_INSTALL/bin/
+      # cp -v /etc/init.d/otbr-nat44 $CRAFT_PART_INSTALL/bin/
 
   runtime-helpers:
     plugin: dump
     source: local/runtime-helpers
+    override-build: |
+      mkdir -p $CRAFT_PART_INSTALL/bin
+      cp -v otbr-setup.sh $CRAFT_PART_INSTALL/bin
+      cp -v install-otbr-firewall.sh $CRAFT_PART_INSTALL/bin
 
