@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 #  Copyright (c) 2017, The OpenThread Authors.
+#  Copyright (c) 2023, Canonical Ltd
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
