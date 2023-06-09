@@ -1,0 +1,153 @@
+name: openthread-border-router
+version: "0.1"
+# license: TBA
+summary: Snap packaging of OpenThread Border Router project for POSIX systems
+description: Refer to https://snapcraft.io/openthread-border-router
+
+base: core22
+
+architectures:
+  - build-on: amd64
+  - build-on: arm64
+
+grade: devel
+confinement: devmode
+
+
+slots:
+  # This adds the needed security policy for the communication
+  dbus-otbr-interface:
+    interface: dbus
+    bus: system
+    name: io.openthread.BorderRouter.wpan0
+
+layout:
+  /usr/share/otbr-web/frontend:
+    symlink: $SNAP/usr/share/otbr-web/frontend
+  # This is the default OT_POSIX_SETTINGS_PATH
+  /var/lib/thread:
+    symlink: $SNAP_COMMON/thread-data
+
+# hooks:
+#     install:
+#         plugs: [network]
+
+apps:
+  otbr-setup:
+    command: bin/otbr-setup.sh
+    daemon: oneshot
+    install-mode: disable
+
+  otbr-agent:
+    after:
+      - otbr-setup
+    command: bin/otbr-agent.sh
+    daemon: simple
+    install-mode: disable
+    # restart-delay: 10s
+
+  # Web GUI
+  # The default port is 80
+  otbr-web:
+    after: 
+      - otbr-agent
+    command: bin/otbr-web
+    daemon: simple
+    install-mode: disable
+    # restart-delay: 3s
+
+  ot-ctl:
+    command: bin/ot-ctl
+  
+parts:
+  build-bin:
+    plugin: nil
+    source: snap/local/build/bin
+    override-build: |
+      # Resources needed for the build
+      mkdir -p $SNAPCRAFT_STAGE/snap/bin
+      cp -v * $SNAPCRAFT_STAGE/snap/bin
+  
+  stage-bin:
+    plugin: nil
+    source: snap/local/stage/bin
+    override-build: |
+      mkdir -p $CRAFT_PART_INSTALL/bin/
+      cp -v * $CRAFT_PART_INSTALL/bin/
+
+  otbr:
+    after:
+      - build-bin
+    source: https://github.com/openthread/ot-br-posix.git
+    source-tag: thread-reference-20230119
+    source-depth: 1
+    plugin: nil
+    build-packages: 
+      - libreadline-dev
+      - libncurses-dev
+      - build-essential
+      - ninja-build
+      - libcpputest-dev
+      - libdbus-1-dev
+      - libavahi-common-dev 
+      - libavahi-client-dev
+      - libjsoncpp-dev
+      - libprotobuf-dev
+      - protobuf-compiler
+      - lsb-release
+      - cmake
+      # - sudo
+      # Boost
+      - libboost-dev
+      - libboost-filesystem-dev
+      - libboost-system-dev
+      # web dependencies
+      - nodejs
+      - npm
+    stage-packages:
+      - iproute2
+      - iputils-ping
+      - rsyslog
+      - libavahi-client3
+      - iptables
+      - ipset
+      - dnsmasq-base
+      - dnsmasq-utils
+      - network-manager
+      - dhcpcd5
+      - libatm1
+      - libjsoncpp-dev
+    override-build: |
+      # Setup scripts
+      # TODO: This copies everything, even though most aren't required
+      cp -vr ./script $CRAFT_PART_INSTALL/bin/
+      chmod +x $CRAFT_PART_INSTALL/bin/script/otbr-firewall
+
+      # TODO: Avoid setting INFRA_IF_NAME here
+      # The value is passed to cmake-build and then added to /etc/default/otbr-agent
+      # but /etc/default/otbr-agent is not used in this snap.
+      PLATFORM=ubuntu \
+      BUILD_DIR=$PWD/build \
+      INFRA_IF_NAME=wlan0 \
+      OTBR_MDNS=avahi \
+        $SNAPCRAFT_STAGE/snap/bin/otbr-build.sh
+      
+      # Binary distributions
+      cp -v ./build/otbr/src/web/otbr-web \
+            ./build/otbr/src/agent/otbr-agent \
+            ./build/otbr/third_party/openthread/repo/src/posix/ot-ctl \
+            $CRAFT_PART_INSTALL/bin/
+
+      # Static web resources
+      # See the layout mapping on top
+      mkdir -p $CRAFT_PART_INSTALL/usr/share/otbr-web
+      cp -vr /usr/share/otbr-web/frontend \
+             $CRAFT_PART_INSTALL/usr/share/otbr-web/
+
+      craftctl default
+
+  license:
+    plugin: nil
+    source: .
+    override-build: |
+      install -DTv LICENSE $CRAFT_PART_INSTALL/usr/share/doc/LICENSE

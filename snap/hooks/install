@@ -1,0 +1,15 @@
+#!/bin/bash -ex
+
+TAG="openthread-border-router.install"
+
+logger --tag=$TAG "Start"
+
+# Set defaults
+snapctl set infra-if=wlp3s0
+snapctl set thread-if=wpan0
+snapctl set radio-url="spinel+hdlc+uart:///dev/ttyACM0"
+
+mkdir -p $SNAP_COMMON/thread-data
+
+logger --tag=$TAG "End"
+
