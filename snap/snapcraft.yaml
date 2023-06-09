@@ -14,46 +14,46 @@ grade: devel
 confinement: devmode
 
 apps:
-  otbr-setup:
-    command: bin/otbr-setup.sh
-    daemon: oneshot
-    install-mode: enable
-    restart-delay: 10s
+  # otbr-setup:
+  #   command: bin/otbr-setup.sh
+  #   daemon: oneshot
+  #   install-mode: enable
+  #   restart-delay: 10s
 
   otbr-agent:
-    after: [otbr-setup]
+    after: [otbr-firewall]
     command: bin/otbr-agent
     daemon: simple
     install-mode: enable
     restart-delay: 10s
 
   otbr-web:
-    after: [otbr-setup]
+    after: [otbr-agent]
     command: bin/otbr-web
     daemon: simple
     install-mode: enable
     restart-delay: 3s
 
   otbr-firewall:
-    after: [otbr-setup]
-    command: bin/otbr-firewall start
-    daemon: simple
-    install-mode: disable
-    restart-delay: 3s
-
-  ot-ctl:
-    after: [otbr-setup]
-    command: bin/ot-ctl
-    daemon: simple
+    # after: [otbr-setup]
+    command: bin/start-otbr-firewall.sh
+    daemon: oneshot
     install-mode: enable
     restart-delay: 3s
 
-  otbr-nat44:
-    after: [otbr-setup]
-    command: bin/otbr-nat44 start
-    daemon: simple
-    install-mode: enable
-    restart-delay: 10s
+  # ot-ctl:
+  #   after: [otbr-setup]
+  #   command: bin/ot-ctl
+  #   daemon: simple
+  #   install-mode: enable
+  #   restart-delay: 3s
+
+  # otbr-nat44:
+  #   after: [otbr-setup]
+  #   command: bin/otbr-nat44 start
+  #   daemon: simple
+  #   install-mode: enable
+  #   restart-delay: 10s
   
 parts:
   openthread-deps:
@@ -116,6 +116,8 @@ parts:
       - kmod
       - iptables
       - xtables-addons-common
+      - libpam0g
+      - libpam-modules
     override-build: |
       craftctl default
       
@@ -143,11 +145,11 @@ parts:
       pwd
       ls
       cp ./build/src/agent/otbr-agent $CRAFT_PART_INSTALL/bin/
-      # cp ./build/otbr/src/web/otbr-web $CRAFT_PART_INSTALL/bin/
+      cp ./build/otbr/src/web/otbr-web $CRAFT_PART_INSTALL/bin/
       cp ./build/third_party/openthread/repo/src/posix/ot-ctl $CRAFT_PART_INSTALL/bin/
 
-      chmod a+x ./src/script/otbr-firewall
-      cp ./src/script/otbr-firewall $CRAFT_PART_INSTALL/bin/
+      chmod a+x ./src/script/_firewall
+      cp ./src/script/_firewall $CRAFT_PART_INSTALL/bin/
 
       # cp -v /etc/init.d/otbr-nat44 $CRAFT_PART_INSTALL/bin/
 
@@ -157,5 +159,4 @@ parts:
     override-build: |
       mkdir -p $CRAFT_PART_INSTALL/bin
       cp -v otbr-setup.sh $CRAFT_PART_INSTALL/bin
-      cp -v install-otbr-firewall.sh $CRAFT_PART_INSTALL/bin
-
+      cp -v start-otbr-firewall.sh $CRAFT_PART_INSTALL/bin
