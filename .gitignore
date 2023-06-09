@@ -1,5 +1,8 @@
+# snap files
 *.snap
-squashfs-root
+*.assert
 parts/*
 prime/*
 stage/*
+snap/.snapcraft/*
+squashfs-root/
