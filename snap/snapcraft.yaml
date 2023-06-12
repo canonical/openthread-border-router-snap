@@ -13,6 +13,10 @@ architectures:
 grade: devel
 confinement: devmode
 
+layout:
+  /usr/share/otbr-web/frontend:
+    symlink: $SNAP/usr/share/otbr-web/frontend
+
 apps:
   # otbr-setup:
   #   command: bin/otbr-setup.sh
@@ -21,25 +25,24 @@ apps:
   #   restart-delay: 10s
 
   otbr-agent:
-    after: [otbr-firewall]
     command: bin/otbr-agent
     daemon: simple
-    install-mode: enable
-    restart-delay: 10s
+    # install-mode: disable
+    # restart-delay: 10s
 
   otbr-web:
     after: [otbr-agent]
     command: bin/otbr-web
     daemon: simple
-    install-mode: enable
+    # install-mode: disable
     restart-delay: 3s
 
-  otbr-firewall:
-    # after: [otbr-setup]
-    command: bin/start-otbr-firewall.sh
-    daemon: oneshot
-    install-mode: enable
-    restart-delay: 3s
+  # otbr-firewall:
+  #   # after: [otbr-setup]
+  #   command: bin/start-otbr-firewall.sh
+  #   daemon: oneshot
+  #   install-mode: enable
+  #   restart-delay: 3s
 
   # ot-ctl:
   #   after: [otbr-setup]
@@ -56,15 +59,22 @@ apps:
   #   restart-delay: 10s
   
 parts:
-  openthread-deps:
+  local-bin:
+    plugin: nil
+    source: snap/local/bin
+    override-build: |
+      mkdir -p $SNAPCRAFT_STAGE/snap/bin
+      cp -v * $SNAPCRAFT_STAGE/snap/bin
+
+  otbr:
+    after:
+      - local-bin
+      - mdns-responder
     source: https://github.com/openthread/ot-br-posix.git
     source-tag: thread-reference-20230119
     source-depth: 1
-    plugin: cmake
-    build-snaps:
-      - cmake
+    plugin: nil
     build-packages: 
-      - wget
       - libreadline-dev
       - libncurses-dev
       - build-essential
@@ -76,12 +86,21 @@ parts:
       - libjsoncpp-dev
       - libprotobuf-dev
       - protobuf-compiler
-
+      - lsb-release
+      - cmake
+      # - sudo
+      # Boost
+      - libboost-dev
+      - libboost-filesystem-dev
+      - libboost-system-dev
+      # web dependencies
+      - nodejs
+      - npm
     stage-packages:
       - iproute2
       - iputils-ping
       - rsyslog
-      - libavahi-client3
+      # - libavahi-client3
       - iptables
       - ipset
       - dnsmasq-base
@@ -89,74 +108,110 @@ parts:
       - network-manager
       - dhcpcd5
       - libatm1
-
+      - libjsoncpp-dev
     override-build: |
-      craftctl default
-      cd $CRAFT_PART_BUILD
+      ls -l $SNAPCRAFT_STAGE/snap/bin
 
-      # Install the mDNSResponder library on Linux system
-      MDNS_RESPONDER_SOURCE_NAME=mDNSResponder-1310.80.1
-      wget --no-check-certificate https://github.com/apple-oss-distributions/mDNSResponder/archive/refs/tags/$MDNS_RESPONDER_SOURCE_NAME.tar.gz
-      mkdir -p $MDNS_RESPONDER_SOURCE_NAME
-      tar xvf $MDNS_RESPONDER_SOURCE_NAME.tar.gz -C $MDNS_RESPONDER_SOURCE_NAME --strip-components=1
-      cd $CRAFT_PART_BUILD/$MDNS_RESPONDER_SOURCE_NAME/Clients
-      sed -i '/#include <ctype.h>/a #include <stdarg.h>' dns-sd.c
-      sed -i '/#include <ctype.h>/a #include <sys/param.h>' dns-sd.c
-      cd $CRAFT_PART_BUILD/$MDNS_RESPONDER_SOURCE_NAME/mDNSPosix
+      INFRA_IF_NAME=wlan0 WEB_GUI=1 $SNAPCRAFT_STAGE/snap/bin/otbr-build.sh
+      
+      # binary distributions
+      cp -v ./build/otbr/src/web/otbr-web \
+            ./build/otbr/src/agent/otbr-agent \
+            $CRAFT_PART_INSTALL/bin/
+
+      # static web resources (see layout mapping on top)
+      mkdir $CRAFT_PART_INSTALL/usr/share/otbr-web
+      cp -vr /usr/share/otbr-web/frontend \
+            $CRAFT_PART_INSTALL/usr/share/otbr-web/
+
+      craftctl default
+
+
+      
+
+  mdns-responder:
+    source: https://github.com/apple-oss-distributions/mDNSResponder
+    source-tag: mDNSResponder-1310.80.1
+    source-type: git
+    source-depth: 1
+    plugin: nil
+    build-packages:
+      - make
+    override-build: |
+      sed -i '/#include <ctype.h>/a #include <stdarg.h>' ./Clients/dns-sd.c
+      sed -i '/#include <ctype.h>/a #include <sys/param.h>' ./Clients/dns-sd.c
+      cd mDNSPosix
       make os=linux
       make install os=linux
 
-  ot-br-posix:
-    after: [openthread-deps]
-    plugin: nil
-    source: local/bin
-    build-packages: 
-      - sudo
-      - lsb-release
-      - kmod
-      - iptables
-      - xtables-addons-common
-      - libpam0g
-      - libpam-modules
-    override-build: |
-      craftctl default
-      
-      cd $CRAFT_PART_BUILD
-
-      cp -vf ./otbr-build.sh ../../openthread-deps/src/script
-      cd ../../openthread-deps
-
-      # This script builds and installs border router and dependencies.
-      chmod +x ./src/script/otbr-build.sh
-      ./src/script/otbr-build.sh
-
-      # Todo: install -DT "$CRAFT_PART_SRC/LICENSE" "$CRAFT_PART_INSTALL/usr/share/doc/ot-br-posix/LICENSE"
-      # Copy library
+      # This is to stage the shared object file for the otbr build.
+      # Instead, may need to stage everything by setting the INSTBASE make arg to $CRAFT_PART_INSTALL/usr:
+      # https://github.com/apple-oss-distributions/mDNSResponder/blob/806254210edec4cab01f794f6fd28658aa6ba59d/mDNSPosix/Makefile#LL193C1-L193C9
       mkdir -p $CRAFT_PART_INSTALL/usr/lib/
-      mkdir -p $CRAFT_PART_INSTALL/bin
-      mkdir -p $CRAFT_PART_INSTALL/lib/lsb/
-      mkdir -p $CRAFT_PART_INSTALL/lib/init/
       cp -v /usr/lib/libdns_sd.so $CRAFT_PART_INSTALL/usr/lib/
-      cp -v /lib/lsb/init-functions $CRAFT_PART_INSTALL/lib/lsb/
-      cp -v /lib/init/vars.sh $CRAFT_PART_INSTALL/lib/init/
 
-      # Configure and copy executables
+      craftctl default
+
+
+
+  # ot-br-posix:
+  #   after: [openthread-deps]
+  #   plugin: nil
+  #   source: local/bin
+  #   source-type: local
+  #   build-packages: 
+  #     - sudo
+  #     - lsb-release
+  #     - kmod
+  #     - iptables
+  #     - xtables-addons-common
+  #     - libpam0g
+  #     - libpam-modules
+  #   override-build: |
+
+  #     cp -vf ./otbr-build.sh ../../openthread-deps/src/script
+  #     cd ../../openthread-deps
+
+  #     # This script builds and installs border router and dependencies.
+  #     chmod +x ./src/script/otbr-build.sh
+  #     ./src/script/otbr-build.sh
+
+  #     # Todo: install -DT "$CRAFT_PART_SRC/LICENSE" "$CRAFT_PART_INSTALL/usr/share/doc/ot-br-posix/LICENSE"
+  #     # Copy library
+  #     mkdir -p $CRAFT_PART_INSTALL/usr/lib/
+  #     mkdir -p $CRAFT_PART_INSTALL/bin
+  #     mkdir -p $CRAFT_PART_INSTALL/lib/lsb/
+  #     mkdir -p $CRAFT_PART_INSTALL/lib/init/
+  #     cp -v /usr/lib/libdns_sd.so $CRAFT_PART_INSTALL/usr/lib/
+  #     cp -v /lib/lsb/init-functions $CRAFT_PART_INSTALL/lib/lsb/
+  #     cp -v /lib/init/vars.sh $CRAFT_PART_INSTALL/lib/init/
+
+  #     # Configure and copy executables
       
-      pwd
-      ls
-      cp ./build/src/agent/otbr-agent $CRAFT_PART_INSTALL/bin/
-      cp ./build/otbr/src/web/otbr-web $CRAFT_PART_INSTALL/bin/
-      cp ./build/third_party/openthread/repo/src/posix/ot-ctl $CRAFT_PART_INSTALL/bin/
+  #     pwd
+  #     ls
+  #     cp ./build/src/agent/otbr-agent $CRAFT_PART_INSTALL/bin/
+  #     cp ./build/otbr/src/web/otbr-web $CRAFT_PART_INSTALL/bin/
+  #     cp ./build/third_party/openthread/repo/src/posix/ot-ctl $CRAFT_PART_INSTALL/bin/
 
-      chmod a+x ./src/script/_firewall
-      cp ./src/script/_firewall $CRAFT_PART_INSTALL/bin/
+  #     chmod a+x ./src/script/_firewall
+  #     cp ./src/script/_firewall $CRAFT_PART_INSTALL/bin/
 
-      # cp -v /etc/init.d/otbr-nat44 $CRAFT_PART_INSTALL/bin/
+  #     # cp -v /etc/init.d/otbr-nat44 $CRAFT_PART_INSTALL/bin/
 
-  runtime-helpers:
-    plugin: dump
-    source: local/runtime-helpers
+  #     craftctl default
+
+  # runtime-helpers:
+  #   plugin: dump
+  #   source: local/runtime-helpers
+  #   source-type: local
+  #   override-build: |
+  #     mkdir -p $CRAFT_PART_INSTALL/bin
+  #     cp -v otbr-setup.sh $CRAFT_PART_INSTALL/bin
+  #     cp -v start-otbr-firewall.sh $CRAFT_PART_INSTALL/bin
+
+  license:
+    plugin: nil
+    source: .
     override-build: |
-      mkdir -p $CRAFT_PART_INSTALL/bin
-      cp -v otbr-setup.sh $CRAFT_PART_INSTALL/bin
-      cp -v start-otbr-firewall.sh $CRAFT_PART_INSTALL/bin
+      install -DTv LICENSE $CRAFT_PART_INSTALL/usr/share/doc/LICENSE

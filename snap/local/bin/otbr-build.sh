@@ -34,28 +34,106 @@
 # shellcheck source=script/_initrc
 . "$(dirname "$0")"/_initrc
 
-# This script sets up border routing configurations
-. script/_border_routing
+OTBR_TOP_BUILDDIR="${BUILD_DIR}/otbr"
+readonly OTBR_TOP_BUILDDIR
 
-# This script installs and manages OTBR
-. script/_otbr
+OTBR_OPTIONS="${OTBR_OPTIONS-}"
+readonly OTBR_OPTIONS
 
-#  This script manipulates ip forward configuration
-. script/_ipforward
+REFERENCE_DEVICE="${REFERENCE_DEVICE:-0}"
+readonly REFERENCE_DEVICE
 
-# This script manipulates nat44 configuration
-. script/_nat64
+otbr_install()
+{
+    local otbr_options=()
 
-# This script manipulates dns64 configuration
-. script/_dns64
+    if [[ ${OTBR_OPTIONS} ]]; then
+        read -r -a otbr_options <<<"${OTBR_OPTIONS}"
+    fi
 
-# This script manipulates DHCPv6-PD configuration
-. script/_dhcpv6_pd
+    otbr_options=(
+        "-DBUILD_TESTING=OFF"
+        "-DCMAKE_INSTALL_PREFIX=/usr"
+        "-DOTBR_DBUS=ON"
+        "-DOTBR_DNSSD_DISCOVERY_PROXY=ON"
+        "-DOTBR_SRP_ADVERTISING_PROXY=ON"
+        "-DOTBR_INFRA_IF_NAME=${INFRA_IF_NAME}"
+        "-DOTBR_MDNS=${OTBR_MDNS:=mDNSResponder}"
+        # Force re-evaluation of version strings
+        "-DOTBR_VERSION="
+        "-DOT_PACKAGE_VERSION="
+        "${otbr_options[@]}"
+    )
 
-# This script sets up a network configuration using NetworkManager
-. script/_network_manager
+    if with WEB_GUI; then
+        otbr_options+=("-DOTBR_WEB=ON")
+    fi
 
-# This script manipulates router tables
-. script/_rt_tables
+    if with BORDER_ROUTING; then
+        otbr_options+=(
+            "-DOTBR_BORDER_ROUTING=ON"
+        )
+    fi
 
-. script/_firewall
+    if with REST_API; then
+        otbr_options+=("-DOTBR_REST=ON")
+    fi
+
+    if with BACKBONE_ROUTER; then
+        otbr_options+=(
+            "-DOTBR_BACKBONE_ROUTER=ON"
+        )
+        if [[ ${REFERENCE_DEVICE} == "1" ]]; then
+            otbr_options+=(
+                "-DOTBR_DUA_ROUTING=ON"
+            )
+        fi
+    fi
+
+    if [[ ${REFERENCE_DEVICE} == "1" ]]; then
+        otbr_options+=(
+            "-DOTBR_NO_AUTO_ATTACH=1"
+            "-DOT_REFERENCE_DEVICE=ON"
+            "-DOT_DHCP6_CLIENT=ON"
+            "-DOT_DHCP6_SERVER=ON"
+        )
+    fi
+
+    if with NAT64 && [[ ${NAT64_SERVICE-} == "openthread" ]]; then
+        otbr_options+=(
+            "-DOTBR_NAT64=ON"
+            "-DOT_POSIX_NAT64_CIDR=${NAT64_DYNAMIC_POOL:-192.168.255.0/24}"
+        )
+    fi
+
+    if with NAT64; then
+        otbr_options+=(
+            "-DOTBR_DNS_UPSTREAM_QUERY=ON"
+        )
+    fi
+
+    ls -la
+    
+    ( ./script/cmake-build "${otbr_options[@]}" \
+        && cd "${OTBR_TOP_BUILDDIR}" \
+        && ninja \
+        && ninja install)
+
+    # if have systemctl; then
+    #     sudo systemctl reload dbus
+    #     sudo systemctl daemon-reload
+    #     without WEB_GUI || sudo systemctl enable otbr-web || true
+    #     sudo systemctl enable otbr-agent || true
+    #     sudo systemctl is-enabled otbr-agent || die 'Failed to enable otbr-agent!'
+    #     without WEB_GUI || sudo systemctl is-enabled otbr-web || die 'Failed to enable otbr-web!'
+
+    #     if [[ ${REFERENCE_DEVICE} == "1" ]]; then
+    #         sudo systemctl enable testharness-discovery || true
+    #         sudo systemctl is-enabled testharness-discovery || die 'Failed to enable otbr-agent!'
+    #     fi
+    # else
+    #     echo >&2 ' *** WARNING: systemctl not found. otbr cannot start on boot.'
+    # fi
+}
+
+otbr_install
