@@ -30,6 +30,8 @@ apps:
     # install-mode: disable
     # restart-delay: 10s
 
+  # Web GUI
+  # The default port is 80
   otbr-web:
     after: [otbr-agent]
     command: bin/otbr-web
@@ -44,12 +46,8 @@ apps:
   #   install-mode: enable
   #   restart-delay: 3s
 
-  # ot-ctl:
-  #   after: [otbr-setup]
-  #   command: bin/ot-ctl
-  #   daemon: simple
-  #   install-mode: enable
-  #   restart-delay: 3s
+  ot-ctl:
+    command: bin/ot-ctl
 
   # otbr-nat44:
   #   after: [otbr-setup]
@@ -114,20 +112,19 @@ parts:
 
       INFRA_IF_NAME=wlan0 WEB_GUI=1 $SNAPCRAFT_STAGE/snap/bin/otbr-build.sh
       
-      # binary distributions
+      # Binary distributions
       cp -v ./build/otbr/src/web/otbr-web \
             ./build/otbr/src/agent/otbr-agent \
+            ./build/otbr/third_party/openthread/repo/src/posix/ot-ctl \
             $CRAFT_PART_INSTALL/bin/
 
-      # static web resources (see layout mapping on top)
-      mkdir $CRAFT_PART_INSTALL/usr/share/otbr-web
+      # Static web resources
+      # See the layout mapping on top
+      mkdir -p $CRAFT_PART_INSTALL/usr/share/otbr-web
       cp -vr /usr/share/otbr-web/frontend \
             $CRAFT_PART_INSTALL/usr/share/otbr-web/
 
       craftctl default
-
-
-      
 
   mdns-responder:
     source: https://github.com/apple-oss-distributions/mDNSResponder

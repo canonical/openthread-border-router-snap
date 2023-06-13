@@ -30,6 +30,9 @@
 #   Description:
 #       This script builds and installs border router and dependencies.
 #
+#   Changes compared to the upstream copy:
+#       - Remove sudo from ninja command
+#       - Remove systemctl-related code chunk
 
 # shellcheck source=script/_initrc
 . "$(dirname "$0")"/_initrc
