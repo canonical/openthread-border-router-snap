@@ -1,0 +1,11 @@
+#!/bin/bash -e
+
+TAG="openthread-border-router.install"
+
+logger --tag=$TAG "Start"
+
+logger --tag=$TAG "Configure the firewall"
+$SNAP/bin/script/otbr-firewall start
+
+
+logger --tag=$TAG "End"

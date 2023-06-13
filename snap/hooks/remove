@@ -1,0 +1,10 @@
+#!/bin/bash -e
+
+TAG="openthread-border-router.remove"
+
+logger --tag=$TAG "Start"
+
+logger --tag=$TAG "Un-configuring the firewall"
+$SNAP/bin/script/otbr-firewall stop
+
+logger --tag=$TAG "End"

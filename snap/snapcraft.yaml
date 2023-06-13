@@ -17,6 +17,10 @@ layout:
   /usr/share/otbr-web/frontend:
     symlink: $SNAP/usr/share/otbr-web/frontend
 
+# hooks:
+#     install:
+#         plugs: [network]
+
 apps:
   # otbr-setup:
   #   command: bin/otbr-setup.sh
@@ -27,7 +31,7 @@ apps:
   otbr-agent:
     command: bin/otbr-agent
     daemon: simple
-    # install-mode: disable
+    install-mode: disable
     # restart-delay: 10s
 
   # Web GUI
@@ -36,15 +40,8 @@ apps:
     after: [otbr-agent]
     command: bin/otbr-web
     daemon: simple
-    # install-mode: disable
+    install-mode: disable
     restart-delay: 3s
-
-  # otbr-firewall:
-  #   # after: [otbr-setup]
-  #   command: bin/start-otbr-firewall.sh
-  #   daemon: oneshot
-  #   install-mode: enable
-  #   restart-delay: 3s
 
   ot-ctl:
     command: bin/ot-ctl
@@ -110,7 +107,26 @@ parts:
     override-build: |
       ls -l $SNAPCRAFT_STAGE/snap/bin
 
-      INFRA_IF_NAME=wlan0 WEB_GUI=1 $SNAPCRAFT_STAGE/snap/bin/otbr-build.sh
+
+
+      # The setup scripts use the following defaults:
+      # NAT64=1
+      # DNS64=0
+      # DHCPV6_PD=0
+      # NETWORK_MANAGER=0
+      # BACKBONE_ROUTER=1
+      # BORDER_ROUTING=1
+      # WEB_GUI=1
+      # REST_API=1
+      #
+      # from:
+      # https://github.com/openthread/ot-br-posix/blob/main/examples/platforms/ubuntu/default  
+      INFRA_IF_NAME=wlan0 $SNAPCRAFT_STAGE/snap/bin/otbr-build.sh
+      
+      # Setup scripts
+      # TODO: This copies everything, even though most aren't required
+      cp -vr ./script $CRAFT_PART_INSTALL/bin/
+      chmod +x $CRAFT_PART_INSTALL/bin/script/otbr-firewall
       
       # Binary distributions
       cp -v ./build/otbr/src/web/otbr-web \
@@ -122,7 +138,7 @@ parts:
       # See the layout mapping on top
       mkdir -p $CRAFT_PART_INSTALL/usr/share/otbr-web
       cp -vr /usr/share/otbr-web/frontend \
-            $CRAFT_PART_INSTALL/usr/share/otbr-web/
+             $CRAFT_PART_INSTALL/usr/share/otbr-web/
 
       craftctl default
 
@@ -142,13 +158,12 @@ parts:
       make install os=linux
 
       # This is to stage the shared object file for the otbr build.
-      # Instead, may need to stage everything by setting the INSTBASE make arg to $CRAFT_PART_INSTALL/usr:
+      # TODO: Instead, may want to stage everything by setting the INSTBASE make arg to $CRAFT_PART_INSTALL/usr:
       # https://github.com/apple-oss-distributions/mDNSResponder/blob/806254210edec4cab01f794f6fd28658aa6ba59d/mDNSPosix/Makefile#LL193C1-L193C9
       mkdir -p $CRAFT_PART_INSTALL/usr/lib/
       cp -v /usr/lib/libdns_sd.so $CRAFT_PART_INSTALL/usr/lib/
 
       craftctl default
-
 
 
   # ot-br-posix:
@@ -198,14 +213,7 @@ parts:
 
   #     craftctl default
 
-  # runtime-helpers:
-  #   plugin: dump
-  #   source: local/runtime-helpers
-  #   source-type: local
-  #   override-build: |
-  #     mkdir -p $CRAFT_PART_INSTALL/bin
-  #     cp -v otbr-setup.sh $CRAFT_PART_INSTALL/bin
-  #     cp -v start-otbr-firewall.sh $CRAFT_PART_INSTALL/bin
+
 
   license:
     plugin: nil
