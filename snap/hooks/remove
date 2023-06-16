@@ -4,7 +4,11 @@ TAG="openthread-border-router.remove"
 
 logger --tag=$TAG "Start"
 
-logger --tag=$TAG "Un-configuring the firewall"
+logger --tag=$TAG "Un-configure the firewall"
 $SNAP/bin/script/otbr-firewall stop
+
+logger --tag=$TAG "Remove IP forwarding"
+source $SNAP/bin/script/_ipforward
+ipforward_uninstall
 
 logger --tag=$TAG "End"

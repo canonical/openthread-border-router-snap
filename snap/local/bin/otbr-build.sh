@@ -29,8 +29,8 @@
 #
 #   Description:
 #       This script builds and installs border router and dependencies.
-#
-#   Changes compared to the upstream copy:
+
+#   Snap: Changes compared to the upstream copy:
 #       - Remove sudo from ninja command
 #       - Remove systemctl-related code chunk
 

@@ -121,12 +121,24 @@ parts:
       #
       # from:
       # https://github.com/openthread/ot-br-posix/blob/main/examples/platforms/ubuntu/default  
-      INFRA_IF_NAME=wlan0 $SNAPCRAFT_STAGE/snap/bin/otbr-build.sh
-      
+      #
+      # Snapped setup checklist:
+      # - firewall_install - DONE
+      # - ipforward_install - DONE
+      # - rt_tables_install - DONE
+      # - nat64_install
+      # - dns64_install - WON'T DO
+      # - network_manager_install - WON'T DO
+      # - dhcpv6_pd_install - WON'T DO
+      # - border_routing_install
+      # - otbr_install - DONE
+
       # Setup scripts
       # TODO: This copies everything, even though most aren't required
       cp -vr ./script $CRAFT_PART_INSTALL/bin/
       chmod +x $CRAFT_PART_INSTALL/bin/script/otbr-firewall
+
+      INFRA_IF_NAME=wlan0 $SNAPCRAFT_STAGE/snap/bin/otbr-build.sh
       
       # Binary distributions
       cp -v ./build/otbr/src/web/otbr-web \
