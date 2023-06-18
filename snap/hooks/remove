@@ -4,11 +4,26 @@ TAG="openthread-border-router.remove"
 
 logger --tag=$TAG "Start"
 
-logger --tag=$TAG "Un-configure the firewall"
+
+###############################################################################
+logger --tag=$TAG "Remove the firewall config"
 $SNAP/bin/script/otbr-firewall stop
 
+# Custom initrc without staging and build logic
+export PLATFORM=ubuntu
+. $SNAP/bin/_initrc_install
+
+###############################################################################
 logger --tag=$TAG "Remove IP forwarding"
 source $SNAP/bin/script/_ipforward
+# NOTE: The following above does not revert changes to /proc/sys/net/
 ipforward_uninstall
+
+###############################################################################
+logger --tag=$TAG "Remove RT Tables for the Backbone Router"
+source $SNAP/bin/script/_rt_tables
+# NOTE: The following does not revert changes to /etc/sysctl.conf 
+export BACKBONE_ROUTER=1
+rt_tables_uninstall
 
 logger --tag=$TAG "End"

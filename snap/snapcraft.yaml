@@ -58,8 +58,13 @@ parts:
     plugin: nil
     source: snap/local/bin
     override-build: |
+      # Resources needed for the build
       mkdir -p $SNAPCRAFT_STAGE/snap/bin
       cp -v * $SNAPCRAFT_STAGE/snap/bin
+
+      # Resources needed in install hook
+      mkdir -p $CRAFT_PART_INSTALL/bin/
+      cp -v _initrc_install $CRAFT_PART_INSTALL/bin/
 
   otbr:
     after:
@@ -138,7 +143,10 @@ parts:
       cp -vr ./script $CRAFT_PART_INSTALL/bin/
       chmod +x $CRAFT_PART_INSTALL/bin/script/otbr-firewall
 
-      INFRA_IF_NAME=wlan0 $SNAPCRAFT_STAGE/snap/bin/otbr-build.sh
+      PLATFORM=ubuntu \
+      BUILD_DIR=$PWD/build \
+      INFRA_IF_NAME=wlan0 \
+        $SNAPCRAFT_STAGE/snap/bin/otbr-build.sh
       
       # Binary distributions
       cp -v ./build/otbr/src/web/otbr-web \
