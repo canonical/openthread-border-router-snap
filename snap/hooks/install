@@ -19,6 +19,7 @@ logger --tag=$TAG "env: $(env)"
 
 ###############################################################################
 logger --tag=$TAG "Install the firewall"
+# TODO: The firewall rules will not persist on reboot
 $SNAP/bin/script/otbr-firewall start
 
 # Custom initrc without staging and build logic
@@ -42,5 +43,11 @@ source $SNAP/bin/script/_rt_tables
 # The following also makes changes to /etc/sysctl.conf 
 # but there is no upstream implementation to revert it!
 rt_tables_install
+
+
+###############################################################################
+logger --tag=$TAG "Install NAT44"
+# TODO: The firewall rules will no persist.
+$SNAP/bin/nat44_install
 
 logger --tag=$TAG "End"

@@ -54,21 +54,25 @@ apps:
   #   restart-delay: 10s
   
 parts:
-  local-bin:
+  build-bin:
     plugin: nil
-    source: snap/local/bin
+    source: snap/local/build/bin
     override-build: |
       # Resources needed for the build
       mkdir -p $SNAPCRAFT_STAGE/snap/bin
       cp -v * $SNAPCRAFT_STAGE/snap/bin
-
-      # Resources needed in install hook
+  
+  stage-bin:
+    plugin: nil
+    source: snap/local/stage/bin
+    override-build: |
       mkdir -p $CRAFT_PART_INSTALL/bin/
       cp -v _initrc_install $CRAFT_PART_INSTALL/bin/
+      cp -v nat44_install $CRAFT_PART_INSTALL/bin/
 
   otbr:
     after:
-      - local-bin
+      - build-bin
       - mdns-responder
     source: https://github.com/openthread/ot-br-posix.git
     source-tag: thread-reference-20230119
@@ -143,6 +147,7 @@ parts:
       cp -vr ./script $CRAFT_PART_INSTALL/bin/
       chmod +x $CRAFT_PART_INSTALL/bin/script/otbr-firewall
 
+      # TODO: Find a way to set INFRA_IF_NAME on runtime
       PLATFORM=ubuntu \
       BUILD_DIR=$PWD/build \
       INFRA_IF_NAME=wlan0 \
