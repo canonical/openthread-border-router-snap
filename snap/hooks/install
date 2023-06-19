@@ -15,11 +15,13 @@ logger --tag=$TAG "Start"
 #        WEB_GUI=1 \
 #        REST_API=1
 
+export INFRA_IF_NAME=wlp3s0
+
 logger --tag=$TAG "env: $(env)"
 
 ###############################################################################
 logger --tag=$TAG "Install the firewall"
-# TODO: The firewall rules will not persist on reboot
+# TODO: The firewall rules will not persist on reboot.
 $SNAP/bin/script/otbr-firewall start
 
 # Custom initrc without staging and build logic
@@ -28,26 +30,30 @@ source $SNAP/bin/_initrc_install
 
 ###############################################################################
 logger --tag=$TAG "Install IP forwarding"
+# TODO: Changes made under /proc/sys/net/ do not persist.
 source $SNAP/bin/script/_ipforward
-# NOTE:
-# The following also calls ipforward_enable which makes changes under /proc/sys/net/
-# but there is no upstream implementation to revert it!
 ipforward_install
 
 ###############################################################################
 logger --tag=$TAG "Install RT Tables for the Backbone Router"
-
 export BACKBONE_ROUTER=1
 source $SNAP/bin/script/_rt_tables
-# NOTE:
-# The following also makes changes to /etc/sysctl.conf 
-# but there is no upstream implementation to revert it!
 rt_tables_install
 
 
 ###############################################################################
 logger --tag=$TAG "Install NAT44"
-# TODO: The firewall rules will no persist.
+# The nat44_install function in scripts/_nat64 creates a service file and sets 
+# firewall rules inside. We are only interested in the firewall rules:
+# TODO: The firewall rules will not persist.
 $SNAP/bin/nat44_install
+
+
+###############################################################################
+logger --tag=$TAG "Install Border Routing"
+export BORDER_ROUTING=1
+source $SNAP/bin/script/_border_routing
+# TODO: Changes made under /proc/sys/net/ipv6/conf/ do not persist.
+border_routing_install
 
 logger --tag=$TAG "End"

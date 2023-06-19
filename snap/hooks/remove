@@ -16,7 +16,8 @@ export PLATFORM=ubuntu
 ###############################################################################
 logger --tag=$TAG "Remove IP forwarding"
 source $SNAP/bin/script/_ipforward
-# NOTE: The following above does not revert changes to /proc/sys/net/
+# NOTE: The following does not revert changes to /proc/sys/net/
+# But those changed don't persists on reboot.
 ipforward_uninstall
 
 ###############################################################################
@@ -25,5 +26,16 @@ source $SNAP/bin/script/_rt_tables
 # NOTE: The following does not revert changes to /etc/sysctl.conf 
 export BACKBONE_ROUTER=1
 rt_tables_uninstall
+
+###############################################################################
+logger --tag=$TAG "Remove NAT44 - no op"
+
+###############################################################################
+logger --tag=$TAG "Remove Border Routing"
+export BORDER_ROUTING=1
+source $SNAP/bin/script/_border_routing
+# NOTE: The following does not revert changes made under /proc/sys/net/ipv6/conf/.
+# But those changed don't persists on reboot.
+border_routing_uninstall
 
 logger --tag=$TAG "End"
