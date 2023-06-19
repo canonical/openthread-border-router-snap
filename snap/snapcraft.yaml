@@ -45,13 +45,6 @@ apps:
 
   ot-ctl:
     command: bin/ot-ctl
-
-  # otbr-nat44:
-  #   after: [otbr-setup]
-  #   command: bin/otbr-nat44 start
-  #   daemon: simple
-  #   install-mode: enable
-  #   restart-delay: 10s
   
 parts:
   build-bin:
@@ -189,56 +182,6 @@ parts:
       cp -v /usr/lib/libdns_sd.so $CRAFT_PART_INSTALL/usr/lib/
 
       craftctl default
-
-
-  # ot-br-posix:
-  #   after: [openthread-deps]
-  #   plugin: nil
-  #   source: local/bin
-  #   source-type: local
-  #   build-packages: 
-  #     - sudo
-  #     - lsb-release
-  #     - kmod
-  #     - iptables
-  #     - xtables-addons-common
-  #     - libpam0g
-  #     - libpam-modules
-  #   override-build: |
-
-  #     cp -vf ./otbr-build.sh ../../openthread-deps/src/script
-  #     cd ../../openthread-deps
-
-  #     # This script builds and installs border router and dependencies.
-  #     chmod +x ./src/script/otbr-build.sh
-  #     ./src/script/otbr-build.sh
-
-  #     # Todo: install -DT "$CRAFT_PART_SRC/LICENSE" "$CRAFT_PART_INSTALL/usr/share/doc/ot-br-posix/LICENSE"
-  #     # Copy library
-  #     mkdir -p $CRAFT_PART_INSTALL/usr/lib/
-  #     mkdir -p $CRAFT_PART_INSTALL/bin
-  #     mkdir -p $CRAFT_PART_INSTALL/lib/lsb/
-  #     mkdir -p $CRAFT_PART_INSTALL/lib/init/
-  #     cp -v /usr/lib/libdns_sd.so $CRAFT_PART_INSTALL/usr/lib/
-  #     cp -v /lib/lsb/init-functions $CRAFT_PART_INSTALL/lib/lsb/
-  #     cp -v /lib/init/vars.sh $CRAFT_PART_INSTALL/lib/init/
-
-  #     # Configure and copy executables
-      
-  #     pwd
-  #     ls
-  #     cp ./build/src/agent/otbr-agent $CRAFT_PART_INSTALL/bin/
-  #     cp ./build/otbr/src/web/otbr-web $CRAFT_PART_INSTALL/bin/
-  #     cp ./build/third_party/openthread/repo/src/posix/ot-ctl $CRAFT_PART_INSTALL/bin/
-
-  #     chmod a+x ./src/script/_firewall
-  #     cp ./src/script/_firewall $CRAFT_PART_INSTALL/bin/
-
-  #     # cp -v /etc/init.d/otbr-nat44 $CRAFT_PART_INSTALL/bin/
-
-  #     craftctl default
-
-
 
   license:
     plugin: nil
