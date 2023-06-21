@@ -66,7 +66,6 @@ parts:
   otbr:
     after:
       - build-bin
-      - mdns-responder
     source: https://github.com/openthread/ot-br-posix.git
     source-tag: thread-reference-20230119
     source-depth: 1
@@ -97,7 +96,7 @@ parts:
       - iproute2
       - iputils-ping
       - rsyslog
-      # - libavahi-client3
+      - libavahi-client3
       - iptables
       - ipset
       - dnsmasq-base
@@ -144,6 +143,7 @@ parts:
       PLATFORM=ubuntu \
       BUILD_DIR=$PWD/build \
       INFRA_IF_NAME=wlan0 \
+      OTBR_MDNS=avahi \
         $SNAPCRAFT_STAGE/snap/bin/otbr-build.sh
       
       # Binary distributions
@@ -157,29 +157,6 @@ parts:
       mkdir -p $CRAFT_PART_INSTALL/usr/share/otbr-web
       cp -vr /usr/share/otbr-web/frontend \
              $CRAFT_PART_INSTALL/usr/share/otbr-web/
-
-      craftctl default
-
-  mdns-responder:
-    source: https://github.com/apple-oss-distributions/mDNSResponder
-    source-tag: mDNSResponder-1310.80.1
-    source-type: git
-    source-depth: 1
-    plugin: nil
-    build-packages:
-      - make
-    override-build: |
-      sed -i '/#include <ctype.h>/a #include <stdarg.h>' ./Clients/dns-sd.c
-      sed -i '/#include <ctype.h>/a #include <sys/param.h>' ./Clients/dns-sd.c
-      cd mDNSPosix
-      make os=linux
-      make install os=linux
-
-      # This is to stage the shared object file for the otbr build.
-      # TODO: Instead, may want to stage everything by setting the INSTBASE make arg to $CRAFT_PART_INSTALL/usr:
-      # https://github.com/apple-oss-distributions/mDNSResponder/blob/806254210edec4cab01f794f6fd28658aa6ba59d/mDNSPosix/Makefile#LL193C1-L193C9
-      mkdir -p $CRAFT_PART_INSTALL/usr/lib/
-      cp -v /usr/lib/libdns_sd.so $CRAFT_PART_INSTALL/usr/lib/
 
       craftctl default
 
