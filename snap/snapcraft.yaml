@@ -13,9 +13,20 @@ architectures:
 grade: devel
 confinement: devmode
 
+
+slots:
+  # This adds the needed security policy for the communication
+  dbus-otbr-interface:
+    interface: dbus
+    bus: system
+    name: io.openthread.BorderRouter.wpan0
+
 layout:
   /usr/share/otbr-web/frontend:
     symlink: $SNAP/usr/share/otbr-web/frontend
+  # This is the default OT_POSIX_SETTINGS_PATH
+  /var/lib/thread:
+    symlink: $SNAP_COMMON/thread-data
 
 # hooks:
 #     install:
@@ -29,7 +40,7 @@ apps:
   #   restart-delay: 10s
 
   otbr-agent:
-    command: bin/otbr-agent
+    command: bin/otbr-agent.sh
     daemon: simple
     install-mode: disable
     # restart-delay: 10s
@@ -60,8 +71,7 @@ parts:
     source: snap/local/stage/bin
     override-build: |
       mkdir -p $CRAFT_PART_INSTALL/bin/
-      cp -v _initrc_install $CRAFT_PART_INSTALL/bin/
-      cp -v nat44_install $CRAFT_PART_INSTALL/bin/
+      cp -v * $CRAFT_PART_INSTALL/bin/
 
   otbr:
     after:

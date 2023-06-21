@@ -114,8 +114,6 @@ otbr_install()
             "-DOTBR_DNS_UPSTREAM_QUERY=ON"
         )
     fi
-
-    ls -la
     
     ( ./script/cmake-build "${otbr_options[@]}" \
         && cd "${OTBR_TOP_BUILDDIR}" \
