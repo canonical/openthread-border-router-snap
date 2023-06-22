@@ -1,7 +1,12 @@
-#!/bin/bash
+#!/bin/bash -ex
 
 export OTBR_NO_AUTO_ATTACH=0
-exec $SNAP/bin/otbr-agent -v -I wpan0 -B wlp3s0 spinel+hdlc+uart:///dev/ttyACM0 trel://wpan0
+
+export INFRA_IF_NAME=$(snapctl get infra-if)
+export THREAD_IF=$(snapctl get thread-if)
+export RADIO_URL=$(snapctl get radio-url)
+
+exec $SNAP/bin/otbr-agent -v -I $THREAD_IF -B $INFRA_IF_NAME $RADIO_URL
 
 # /etc/default/otbr-agent:
 # Default settings for otbr-agent. This file is sourced by systemd

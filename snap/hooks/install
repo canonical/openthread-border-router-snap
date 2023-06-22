@@ -4,56 +4,12 @@ TAG="openthread-border-router.install"
 
 logger --tag=$TAG "Start"
 
-# Somehow the `with` function isn't able to read off examples/platforms/ubuntu/default
-# So, setting the default manually here:
-# export NAT64=1 \
-#        DNS64=0 \
-#        DHCPV6_PD=0 \
-#        NETWORK_MANAGER=0 \
-#        BACKBONE_ROUTER=1 \
-#        BORDER_ROUTING=1 \
-#        WEB_GUI=1 \
-#        REST_API=1
+# Set defaults
+snapctl set infra-if=wlp3s0
+snapctl set thread-if=wpan0
+snapctl set radio-url="spinel+hdlc+uart:///dev/ttyACM0"
 
-export INFRA_IF_NAME=wlp3s0
-
-logger --tag=$TAG "env: $(env)"
-
-###############################################################################
-logger --tag=$TAG "Install the firewall"
-# TODO: The firewall rules will not persist on reboot.
-$SNAP/bin/script/otbr-firewall start
-
-# Custom initrc without staging and build logic
-export PLATFORM=ubuntu
-source $SNAP/bin/_initrc_install
-
-###############################################################################
-logger --tag=$TAG "Install IP forwarding"
-# TODO: Changes made under /proc/sys/net/ do not persist.
-source $SNAP/bin/script/_ipforward
-ipforward_install
-
-###############################################################################
-logger --tag=$TAG "Install RT Tables for the Backbone Router"
-export BACKBONE_ROUTER=1
-source $SNAP/bin/script/_rt_tables
-rt_tables_install
-
-
-###############################################################################
-logger --tag=$TAG "Install NAT44"
-# The nat44_install function in scripts/_nat64 creates a service file and sets 
-# firewall rules inside. We are only interested in the firewall rules:
-# TODO: The firewall rules will not persist.
-$SNAP/bin/nat44_install
-
-
-###############################################################################
-logger --tag=$TAG "Install Border Routing"
-export BORDER_ROUTING=1
-source $SNAP/bin/script/_border_routing
-# TODO: Changes made under /proc/sys/net/ipv6/conf/ do not persist.
-border_routing_install
+mkdir -p $SNAP_COMMON/thread-data
 
 logger --tag=$TAG "End"
+

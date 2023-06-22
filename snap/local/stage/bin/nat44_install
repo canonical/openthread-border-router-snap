@@ -1,5 +1,5 @@
 
-#!/bin/bash
+#!/bin/bash -ex
 #
 #  Copyright (c) 2017, The OpenThread Authors.
 #  Copyright (c) 2023, Canonical Ltd.
@@ -28,17 +28,16 @@
 #  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 #  POSSIBILITY OF SUCH DAMAGE.
 
-WLAN_IFNAMES="${INFRA_IF_NAME:-eth0}"
-THREAD_IF="${THREAD_IF:-wpan0}"
-
-logger "NAT44 Install: WLAN_IFNAMES: $WLAN_IFNAMES"
-logger "NAT44 Install: THREAD_IF: $THREAD_IF"
+# WLAN_IFNAMES="${INFRA_IF_NAME:-eth0}"
+# THREAD_IF="${THREAD_IF:-wpan0}"
+export WLAN_IFNAMES=$(snapctl get infra-if)
+export THREAD_IF=$(snapctl get thread-if)
 
 # Just a random fwmark bits.
 iptables -t mangle -A PREROUTING -i $THREAD_IF -j MARK --set-mark 0x1001 -m comment --comment "OTBR NAT44"
 iptables -t nat -A POSTROUTING -m mark --mark 0x1001 -j MASQUERADE -m comment --comment "OTBR NAT44"
 for IFNAME in $WLAN_IFNAMES; do
-    logger "NAT44 Install: Setting firewall rule for $IFNAME"
+    echo "Setup NAT44: Setting firewall rule for $IFNAME"
     iptables -t filter -A FORWARD -o $IFNAME -j ACCEPT -m comment --comment "OTBR NAT44"
     iptables -t filter -A FORWARD -i $IFNAME -j ACCEPT -m comment --comment "OTBR NAT44"
 done

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -ex
 #
 #  Copyright (c) 2017, The OpenThread Authors.
 #  Copyright (c) 2023, Canonical Ltd
