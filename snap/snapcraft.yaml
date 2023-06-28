@@ -13,58 +13,76 @@ architectures:
 grade: devel
 confinement: devmode
 
+
+slots:
+  # This adds the needed security policy for the communication
+  dbus-otbr-interface:
+    interface: dbus
+    bus: system
+    name: io.openthread.BorderRouter.wpan0
+
+layout:
+  /usr/share/otbr-web/frontend:
+    symlink: $SNAP/usr/share/otbr-web/frontend
+  # This is the default OT_POSIX_SETTINGS_PATH
+  /var/lib/thread:
+    symlink: $SNAP_COMMON/thread-data
+
+# hooks:
+#     install:
+#         plugs: [network]
+
 apps:
-  # otbr-setup:
-  #   command: bin/otbr-setup.sh
-  #   daemon: oneshot
-  #   install-mode: enable
-  #   restart-delay: 10s
+  otbr-setup:
+    command: bin/otbr-setup.sh
+    daemon: oneshot
+    install-mode: disable
 
   otbr-agent:
-    after: [otbr-firewall]
-    command: bin/otbr-agent
+    after:
+      - otbr-setup
+    command: bin/otbr-agent.sh
     daemon: simple
-    install-mode: enable
-    restart-delay: 10s
+    install-mode: disable
+    # restart-delay: 10s
 
+  # Web GUI
+  # The default port is 80
   otbr-web:
-    after: [otbr-agent]
+    after: 
+      - otbr-agent
     command: bin/otbr-web
     daemon: simple
-    install-mode: enable
-    restart-delay: 3s
+    install-mode: disable
+    # restart-delay: 3s
 
-  otbr-firewall:
-    # after: [otbr-setup]
-    command: bin/start-otbr-firewall.sh
-    daemon: oneshot
-    install-mode: enable
-    restart-delay: 3s
-
-  # ot-ctl:
-  #   after: [otbr-setup]
-  #   command: bin/ot-ctl
-  #   daemon: simple
-  #   install-mode: enable
-  #   restart-delay: 3s
-
-  # otbr-nat44:
-  #   after: [otbr-setup]
-  #   command: bin/otbr-nat44 start
-  #   daemon: simple
-  #   install-mode: enable
-  #   restart-delay: 10s
+  ot-ctl:
+    command: bin/ot-ctl
   
 parts:
-  openthread-deps:
+  build-bin:
+    plugin: nil
+    source: snap/local/build/bin
+    override-build: |
+      # Resources needed for the build
+      mkdir -p $SNAPCRAFT_STAGE/snap/bin
+      cp -v * $SNAPCRAFT_STAGE/snap/bin
+  
+  stage-bin:
+    plugin: nil
+    source: snap/local/stage/bin
+    override-build: |
+      mkdir -p $CRAFT_PART_INSTALL/bin/
+      cp -v * $CRAFT_PART_INSTALL/bin/
+
+  otbr:
+    after:
+      - build-bin
     source: https://github.com/openthread/ot-br-posix.git
     source-tag: thread-reference-20230119
     source-depth: 1
-    plugin: cmake
-    build-snaps:
-      - cmake
+    plugin: nil
     build-packages: 
-      - wget
       - libreadline-dev
       - libncurses-dev
       - build-essential
@@ -76,7 +94,16 @@ parts:
       - libjsoncpp-dev
       - libprotobuf-dev
       - protobuf-compiler
-
+      - lsb-release
+      - cmake
+      # - sudo
+      # Boost
+      - libboost-dev
+      - libboost-filesystem-dev
+      - libboost-system-dev
+      # web dependencies
+      - nodejs
+      - npm
     stage-packages:
       - iproute2
       - iputils-ping
@@ -89,74 +116,38 @@ parts:
       - network-manager
       - dhcpcd5
       - libatm1
-
+      - libjsoncpp-dev
     override-build: |
+      # Setup scripts
+      # TODO: This copies everything, even though most aren't required
+      cp -vr ./script $CRAFT_PART_INSTALL/bin/
+      chmod +x $CRAFT_PART_INSTALL/bin/script/otbr-firewall
+
+      # TODO: Avoid setting INFRA_IF_NAME here
+      # The value is passed to cmake-build and then added to /etc/default/otbr-agent
+      # but /etc/default/otbr-agent is not used in this snap.
+      PLATFORM=ubuntu \
+      BUILD_DIR=$PWD/build \
+      INFRA_IF_NAME=wlan0 \
+      OTBR_MDNS=avahi \
+        $SNAPCRAFT_STAGE/snap/bin/otbr-build.sh
+      
+      # Binary distributions
+      cp -v ./build/otbr/src/web/otbr-web \
+            ./build/otbr/src/agent/otbr-agent \
+            ./build/otbr/third_party/openthread/repo/src/posix/ot-ctl \
+            $CRAFT_PART_INSTALL/bin/
+
+      # Static web resources
+      # See the layout mapping on top
+      mkdir -p $CRAFT_PART_INSTALL/usr/share/otbr-web
+      cp -vr /usr/share/otbr-web/frontend \
+             $CRAFT_PART_INSTALL/usr/share/otbr-web/
+
       craftctl default
-      cd $CRAFT_PART_BUILD
 
-      # Install the mDNSResponder library on Linux system
-      MDNS_RESPONDER_SOURCE_NAME=mDNSResponder-1310.80.1
-      wget --no-check-certificate https://github.com/apple-oss-distributions/mDNSResponder/archive/refs/tags/$MDNS_RESPONDER_SOURCE_NAME.tar.gz
-      mkdir -p $MDNS_RESPONDER_SOURCE_NAME
-      tar xvf $MDNS_RESPONDER_SOURCE_NAME.tar.gz -C $MDNS_RESPONDER_SOURCE_NAME --strip-components=1
-      cd $CRAFT_PART_BUILD/$MDNS_RESPONDER_SOURCE_NAME/Clients
-      sed -i '/#include <ctype.h>/a #include <stdarg.h>' dns-sd.c
-      sed -i '/#include <ctype.h>/a #include <sys/param.h>' dns-sd.c
-      cd $CRAFT_PART_BUILD/$MDNS_RESPONDER_SOURCE_NAME/mDNSPosix
-      make os=linux
-      make install os=linux
-
-  ot-br-posix:
-    after: [openthread-deps]
+  license:
     plugin: nil
-    source: local/bin
-    build-packages: 
-      - sudo
-      - lsb-release
-      - kmod
-      - iptables
-      - xtables-addons-common
-      - libpam0g
-      - libpam-modules
+    source: .
     override-build: |
-      craftctl default
-      
-      cd $CRAFT_PART_BUILD
-
-      cp -vf ./otbr-build.sh ../../openthread-deps/src/script
-      cd ../../openthread-deps
-
-      # This script builds and installs border router and dependencies.
-      chmod +x ./src/script/otbr-build.sh
-      ./src/script/otbr-build.sh
-
-      # Todo: install -DT "$CRAFT_PART_SRC/LICENSE" "$CRAFT_PART_INSTALL/usr/share/doc/ot-br-posix/LICENSE"
-      # Copy library
-      mkdir -p $CRAFT_PART_INSTALL/usr/lib/
-      mkdir -p $CRAFT_PART_INSTALL/bin
-      mkdir -p $CRAFT_PART_INSTALL/lib/lsb/
-      mkdir -p $CRAFT_PART_INSTALL/lib/init/
-      cp -v /usr/lib/libdns_sd.so $CRAFT_PART_INSTALL/usr/lib/
-      cp -v /lib/lsb/init-functions $CRAFT_PART_INSTALL/lib/lsb/
-      cp -v /lib/init/vars.sh $CRAFT_PART_INSTALL/lib/init/
-
-      # Configure and copy executables
-      
-      pwd
-      ls
-      cp ./build/src/agent/otbr-agent $CRAFT_PART_INSTALL/bin/
-      cp ./build/otbr/src/web/otbr-web $CRAFT_PART_INSTALL/bin/
-      cp ./build/third_party/openthread/repo/src/posix/ot-ctl $CRAFT_PART_INSTALL/bin/
-
-      chmod a+x ./src/script/_firewall
-      cp ./src/script/_firewall $CRAFT_PART_INSTALL/bin/
-
-      # cp -v /etc/init.d/otbr-nat44 $CRAFT_PART_INSTALL/bin/
-
-  runtime-helpers:
-    plugin: dump
-    source: local/runtime-helpers
-    override-build: |
-      mkdir -p $CRAFT_PART_INSTALL/bin
-      cp -v otbr-setup.sh $CRAFT_PART_INSTALL/bin
-      cp -v start-otbr-firewall.sh $CRAFT_PART_INSTALL/bin
+      install -DTv LICENSE $CRAFT_PART_INSTALL/usr/share/doc/LICENSE
