@@ -1,13 +1,11 @@
 # Commission and control a Matter Thread device via the OTBR Snap
 
 ### Setup environment:
-Ubuntu Desktop 23.04
+- Ubuntu Desktop 23.04
 
-### Requirements:
+- nRF52840 dongle (A) with RCP firmware as an RCP
 
-nRF52840 dongle A with the Thread lighting app running on it
-
-nRF52840 dongle B with RCP firmware as an RCP
+- nRF52840 dongle (B) with the Thread lighting app running on it
 
 ## Installation and setup of OTBR Snap:
 1. Install the OpenThread Border Router (OTBR) snap:
@@ -32,7 +30,7 @@ snap start openthread-border-router
 ```
 
 ## Forming the OTBR Network:
-1. Connect the RCP Dongle to a USB port
+1. Connect the RCP dongle (A) to a USB port
 2. Use the CTL tool to initialize the Thread network:
 ```bash
 sudo openthread-border-router.ot-ctl
@@ -45,11 +43,11 @@ Done
 > thread start
 Done
 ```
-Alternatively, these steps could also be performed in the GUI at http://0.0.0.0/. 
+Alternatively, these steps could also be performed in the GUI at [https://localhost](https://localhost). 
 Please refer to the instructions [here](https://openthread.io/guides/border-router/web-gui.md) to configure and form, join, or check the status of a Thread network using GUI.
 
 ## Discovering and pairing the Thread lighting device into the OTBR network
-Make sure the Thread lighting device is running. Flashing and running the Thread lighting device is beyond the scope of this guide. 
+Make sure the Thread lighting app is running on dongle (B). Flashing and running the Thread lighting app on the device is beyond the scope of this guide. 
 Please refer to [here](https://github.com/project-chip/connectedhomeip/tree/master/examples/lighting-app/nrfconnect). 
 
 1. Obtaining the OTBR operational dataset (OTBR network's credentials):
@@ -91,7 +89,7 @@ where:
 -   `110` is the node id of the app assigned during the commissioning
 -   `1` is the endpoint of the configured device
 
-Upon successful execution, the green LED on the dongle will turn on or off. 
+Upon successful execution, the green LED on the dongle (B) will turn on or off. 
 Additionally, two connected Thread nodes (one leader and one child) on the OpenThread GUI could be observed.
 
 ## Reference
@@ -99,10 +97,3 @@ Additionally, two connected Thread nodes (one leader and one child) on the OpenT
 - https://developers.home.google.com/matter/vendors/nordic-semiconductor
 - https://github.com/project-chip/connectedhomeip/tree/master/examples/lighting-app/nrfconnect
 - https://github.com/project-chip/connectedhomeip/blob/master/docs/guides/chip_tool_guide.md#using-chip-tool-for-matter-device-testing
-
-
-
-
-
-
-
