@@ -65,6 +65,9 @@ apps:
   steering-data:
     command: bin/steering-data
 
+  meshcop:
+    command: bin/meshcop.sh -1
+
 parts:
   build-bin:
     plugin: nil
@@ -102,7 +105,7 @@ parts:
       - protobuf-compiler
       - lsb-release
       - cmake
-      # - sudo
+      - sudo
       # Boost
       - libboost-dev
       - libboost-filesystem-dev
@@ -123,6 +126,8 @@ parts:
       - dhcpcd5
       - libatm1
       - libjsoncpp-dev
+      - lsb-release
+      - git
     override-build: |
       # Setup scripts
       # TODO: This copies everything, even though most aren't required
@@ -141,6 +146,7 @@ parts:
       # Binary distributions
       cp -v ./build/otbr/src/web/otbr-web \
             ./build/otbr/src/agent/otbr-agent \
+            ./build/otbr/src/agent/otbr-agent.conf \
             ./build/otbr/third_party/openthread/repo/src/posix/ot-ctl \
             ./build/otbr/tools/pskc \
             ./build/otbr/tools/steering-data \
@@ -159,3 +165,21 @@ parts:
     source: .
     override-build: |
       install -DTv LICENSE $CRAFT_PART_INSTALL/usr/share/doc/LICENSE
+
+
+  # This is a simulated transceiver RCP for testing purpose
+  ot-rcp:
+    source: https://github.com/openthread/openthread.git
+    source-tag: thread-reference-20230119
+    source-depth: 1
+    plugin: nil
+    build-packages: 
+      - cmake
+    override-build: |
+      ./script/cmake-build simulation -DOT_APP_CLI=OFF -DOT_APP_NCP=OFF -DOT_FTD=OFF -DOT_MTD=OFF
+
+      mkdir -p $CRAFT_PART_INSTALL/bin/
+      cp -v ./build/simulation/examples/apps/ncp/ot-rcp $CRAFT_PART_INSTALL/bin/
+
+      craftctl default
+    

@@ -11,5 +11,8 @@ snapctl set radio-url="spinel+hdlc+uart:///dev/ttyACM0"
 
 mkdir -p $SNAP_COMMON/thread-data
 
+mkdir -p $SNAP_DATA/tmp/test-otbr/stage
+mkdir -p $SNAP_DATA/tmp/test-otbr/build
+mkdir -p $SNAP_DATA/tmp/test-otbr/build/ot-commissioner
 logger --tag=$TAG "End"
 
