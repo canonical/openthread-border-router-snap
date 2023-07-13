@@ -59,6 +59,12 @@ apps:
   ot-ctl:
     command: bin/ot-ctl
   
+  pskc:
+    command: bin/pskc
+
+  steering-data:
+    command: bin/steering-data
+
 parts:
   build-bin:
     plugin: nil
@@ -136,6 +142,8 @@ parts:
       cp -v ./build/otbr/src/web/otbr-web \
             ./build/otbr/src/agent/otbr-agent \
             ./build/otbr/third_party/openthread/repo/src/posix/ot-ctl \
+            ./build/otbr/tools/pskc \
+            ./build/otbr/tools/steering-data \
             $CRAFT_PART_INSTALL/bin/
 
       # Static web resources
