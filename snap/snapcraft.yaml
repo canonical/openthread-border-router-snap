@@ -21,18 +21,20 @@ slots:
     bus: system
     name: io.openthread.BorderRouter.wpan0
 
+plugs:
+  etc-files:
+    interface: system-files
+    write:
+      - /etc/iproute2
+      - /etc/sysctl.conf
+      - /etc/sysctl.d
+
 layout:
   /usr/share/otbr-web/frontend:
     symlink: $SNAP/usr/share/otbr-web/frontend
   # This is the default OT_POSIX_SETTINGS_PATH
   /var/lib/thread:
     symlink: $SNAP_COMMON/thread-data
-
-  /etc/sysctl.d:
-    bind: $SNAP/etc/sysctl.d
-  /etc/iproute2:
-    bind: $SNAP/etc/iproute2
-
 
 # hooks:
 #     install:
@@ -60,6 +62,7 @@ apps:
       - netlink-audit
       - netlink-connector
       - qualcomm-ipc-router
+      - etc-files
 
   otbr-agent:
     after:
@@ -142,13 +145,11 @@ parts:
       - libjsoncpp-dev
     override-build: |
       # Setup scripts
+      # Remove sudo from scripts
+      find ./script -type f -exec sed -i 's/sudo //g' {} +
       # TODO: This copies everything, even though most aren't required
       cp -vr ./script $CRAFT_PART_INSTALL/bin/
       chmod +x $CRAFT_PART_INSTALL/bin/script/otbr-firewall
-      # Changes for otbr-setup
-      chmod +x $CRAFT_PART_INSTALL/bin/script/_ipforward
-      sed -i 's/sudo //g' $CRAFT_PART_INSTALL/bin/script/_ipforward
-      sed -i 's/sudo //g' $CRAFT_PART_INSTALL/bin/script/_rt_tables
 
       # TODO: Avoid setting INFRA_IF_NAME here
       # The value is passed to cmake-build and then added to /etc/default/otbr-agent
