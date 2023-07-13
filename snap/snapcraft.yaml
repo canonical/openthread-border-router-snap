@@ -11,7 +11,7 @@ architectures:
   - build-on: arm64
 
 grade: devel
-confinement: devmode
+confinement: strict
 
 
 slots:
@@ -28,6 +28,12 @@ layout:
   /var/lib/thread:
     symlink: $SNAP_COMMON/thread-data
 
+  /etc/sysctl.d:
+    bind: $SNAP/etc/sysctl.d
+  /etc/iproute2:
+    bind: $SNAP/etc/iproute2
+
+
 # hooks:
 #     install:
 #         plugs: [network]
@@ -37,6 +43,23 @@ apps:
     command: bin/otbr-setup.sh
     daemon: oneshot
     install-mode: disable
+    plugs:
+      - network
+      - network-control
+      - network-observe
+      - firewall-control
+      - avahi-observe
+      - avahi-control
+      - bluetooth-control
+      - bluez
+      - home
+      - system-observe
+      - steam-support
+      - ppp
+      - process-control
+      - netlink-audit
+      - netlink-connector
+      - qualcomm-ipc-router
 
   otbr-agent:
     after:
@@ -122,6 +145,10 @@ parts:
       # TODO: This copies everything, even though most aren't required
       cp -vr ./script $CRAFT_PART_INSTALL/bin/
       chmod +x $CRAFT_PART_INSTALL/bin/script/otbr-firewall
+      # Changes for otbr-setup
+      chmod +x $CRAFT_PART_INSTALL/bin/script/_ipforward
+      sed -i 's/sudo //g' $CRAFT_PART_INSTALL/bin/script/_ipforward
+      sed -i 's/sudo //g' $CRAFT_PART_INSTALL/bin/script/_rt_tables
 
       # TODO: Avoid setting INFRA_IF_NAME here
       # The value is passed to cmake-build and then added to /etc/default/otbr-agent
