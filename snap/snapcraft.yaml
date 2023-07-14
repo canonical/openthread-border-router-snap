@@ -22,7 +22,7 @@ slots:
     name: io.openthread.BorderRouter.wpan0
 
 plugs:
-  etc-files:
+  system-etc-run-files:
     interface: system-files
     write:
       - /etc/iproute2
@@ -49,12 +49,11 @@ apps:
     install-mode: disable
     plugs:
       - network
+      - network-bind
       - network-control
       - firewall-control
-      - avahi-observe
-      - avahi-control
       - system-observe
-      - etc-files
+      - system-etc-run-files
 
   otbr-agent:
     after:
@@ -65,13 +64,14 @@ apps:
     # restart-delay: 10s
     plugs: 
       - network 
-      - network-control  
-      - firewall-control 
+      - network-bind
+      - network-control
       - avahi-observe
       - avahi-control
+      - bluetooth-control
+      - bluez
       - raw-usb
-      - hardware-observe
-      - etc-files
+      - system-etc-run-files
 
   # Web GUI
   # The default port is 80
@@ -85,13 +85,13 @@ apps:
     plugs:
       - network
       - network-bind
-      - etc-files
+      - system-etc-run-files
     
 
   ot-ctl:
     command: bin/ot-ctl
     plugs:
-      - etc-files
+      - system-etc-run-files
   
 parts:
   build-bin:
