@@ -28,6 +28,8 @@ plugs:
       - /etc/iproute2
       - /etc/sysctl.conf
       - /etc/sysctl.d
+      - /run/openthread-wpan0.lock
+      - /run/openthread-wpan0.sock
 
 layout:
   /usr/share/otbr-web/frontend:
@@ -48,20 +50,10 @@ apps:
     plugs:
       - network
       - network-control
-      - network-observe
       - firewall-control
       - avahi-observe
       - avahi-control
-      - bluetooth-control
-      - bluez
-      - home
       - system-observe
-      - steam-support
-      - ppp
-      - process-control
-      - netlink-audit
-      - netlink-connector
-      - qualcomm-ipc-router
       - etc-files
 
   otbr-agent:
@@ -71,6 +63,15 @@ apps:
     daemon: simple
     install-mode: disable
     # restart-delay: 10s
+    plugs: 
+      - network 
+      - network-control  
+      - firewall-control 
+      - avahi-observe
+      - avahi-control
+      - raw-usb
+      - hardware-observe
+      - etc-files
 
   # Web GUI
   # The default port is 80
@@ -81,9 +82,16 @@ apps:
     daemon: simple
     install-mode: disable
     # restart-delay: 3s
+    plugs:
+      - network
+      - network-bind
+      - etc-files
+    
 
   ot-ctl:
     command: bin/ot-ctl
+    plugs:
+      - etc-files
   
 parts:
   build-bin:
