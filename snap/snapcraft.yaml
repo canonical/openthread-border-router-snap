@@ -22,12 +22,15 @@ slots:
     name: io.openthread.BorderRouter.wpan0
 
 plugs:
-  system-etc-run-files:
+  system-config-files:
     interface: system-files
     write:
       - /etc/iproute2
       - /etc/sysctl.conf
       - /etc/sysctl.d
+  system-runtime-files:
+    interface: system-files
+    write:
       - /run/openthread-wpan0.lock
       - /run/openthread-wpan0.sock
 
@@ -53,7 +56,7 @@ apps:
       - network-control
       - firewall-control
       - system-observe
-      - system-etc-run-files
+      - system-config-files
 
   otbr-agent:
     after:
@@ -71,7 +74,7 @@ apps:
       - bluetooth-control
       - bluez
       - raw-usb
-      - system-etc-run-files
+      - system-runtime-files
 
   # Web GUI
   # The default port is 80
@@ -85,13 +88,13 @@ apps:
     plugs:
       - network
       - network-bind
-      - system-etc-run-files
+      - system-runtime-files
     
 
   ot-ctl:
     command: bin/ot-ctl
     plugs:
-      - system-etc-run-files
+      - system-runtime-files
   
 parts:
   build-bin:
