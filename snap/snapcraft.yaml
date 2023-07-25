@@ -36,10 +36,7 @@ plugs:
     write:
       - /run/openthread-wpan0.lock
       - /run/openthread-wpan0.sock
-  system-run:
-    interface: system-files
-    write:
-      - /run
+      
 layout:
   /usr/share/otbr-web/frontend:
     symlink: $SNAP/usr/share/otbr-web/frontend
