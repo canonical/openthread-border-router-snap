@@ -35,20 +35,20 @@ Change using `sudo snap openthread-border-router set key="value"`
 
 Connect interfaces to access desired resources:
 ```bash
-# Allow access to system files
+# Allow access to specific system files
 sudo snap connect openthread-border-router:system-etc-iproute
 sudo snap connect openthread-border-router:system-etc-sysctl
 sudo snap connect openthread-border-router:system-run-openthread-wpan0
 
 # Allow DNS-SD registration and discovery
 sudo snap connect openthread-border-router:avahi-control
-# Allow control over the network firewall
+# Allow setting up the firewall
 sudo snap connect openthread-border-router:firewall-control
 # Allow access to all connected USB devices via a raw interface
 sudo snap connect openthread-border-router:raw-usb
-# Allow wide and privileged access to networking
+# Allow setting up the networking
 sudo snap connect openthread-border-router:network-control
-# Allow access to kernel Bluetooth stack
+# Allow controlling the Bluetooth devices
 sudo snap connect openthread-border-router:bluetooth-control
 # Allow device discovery over Bluetooth Low Energy
 sudo snap connect openthread-border-router:bluez
