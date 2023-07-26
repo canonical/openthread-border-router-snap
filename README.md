@@ -67,7 +67,7 @@ sudo snap start openthread-border-router
 ## Usage
 
 ### Control a Matter Thread device
-To commission and control a Matter Thread device via the OTBR Snap, please refer to the [wiki](https://github.com/MonicaisHer/openthread-border-router-snap/wiki/Commission-and-control-a-Matter-Thread-device-via-the-OTBR-Snap).
+To commission and control a Matter Thread device via the OTBR Snap, please refer to the [wiki](https://github.com/canonical/openthread-border-router-snap/wiki/Commission-and-control-a-Matter-Thread-device-via-the-OTBR-Snap).
 
 ### Pre-Shared Key for the Commissioner (PSKc) generator
 
