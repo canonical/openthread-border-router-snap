@@ -19,6 +19,7 @@ This will create a snap package file with .snap extension. It can be installed l
 sudo snap install ./openthread-border-router_*.snap --devmode
 ```
 
+## Configure
 View default configurations:
 ```bash
 $ sudo snap get openthread-border-router 
@@ -30,7 +31,43 @@ thread-if  wpan0
 
 Change using `sudo snap openthread-border-router set key="value"`
 
+## Grant access
+
+Connect interfaces to access desired resources:
+```bash
+# Allow access to specific system files
+sudo snap connect openthread-border-router:system-etc-iproute
+sudo snap connect openthread-border-router:system-etc-sysctl
+sudo snap connect openthread-border-router:system-run-openthread-wpan0
+
+# Allow DNS-SD registration and discovery
+sudo snap connect openthread-border-router:avahi-control
+# Allow setting up the firewall
+sudo snap connect openthread-border-router:firewall-control
+# Allow access to USB Thread Radio Co-Processor (RCP)
+sudo snap connect openthread-border-router:raw-usb
+# Allow setting up the networking
+sudo snap connect openthread-border-router:network-control
+# Allow controlling the Bluetooth devices
+sudo snap connect openthread-border-router:bluetooth-control
+# Allow device discovery over Bluetooth Low Energy
+sudo snap connect openthread-border-router:bluez
+```
+
+> **_NOTE:_**  If the thread interface is different from the default value (wpan0), instead of `system-run-openthread-wpan0`, connect:
+> ```bash
+> sudo snap connect openthread-border-router:system-run
+> ```
+
+## Run
+```bash
+sudo snap start openthread-border-router
+```
+
 ## Usage
+
+### Control a Matter Thread device
+To commission and control a Matter Thread device via the OTBR Snap, please refer to the [wiki](https://github.com/MonicaisHer/openthread-border-router-snap/wiki/Commission-and-control-a-Matter-Thread-device-via-the-OTBR-Snap).
 
 ### Pre-Shared Key for the Commissioner (PSKc) generator
 

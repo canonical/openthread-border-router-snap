@@ -11,7 +11,7 @@ architectures:
   - build-on: arm64
 
 grade: devel
-confinement: devmode
+confinement: strict
 
 
 slots:
@@ -21,6 +21,25 @@ slots:
     bus: system
     name: io.openthread.BorderRouter.wpan0
 
+plugs:
+  system-etc-iproute:
+    interface: system-files
+    write:
+      - /etc/iproute2
+  system-etc-sysctl:
+    interface: system-files
+    write:
+      - /etc/sysctl.conf
+      - /etc/sysctl.d
+  system-run-openthread-wpan0:
+    interface: system-files
+    write:
+      - /run/openthread-wpan0.lock
+      - /run/openthread-wpan0.sock
+  system-run:
+    interface: system-files
+    write:
+      - /run
 layout:
   /usr/share/otbr-web/frontend:
     symlink: $SNAP/usr/share/otbr-web/frontend
@@ -37,6 +56,13 @@ apps:
     command: bin/otbr-setup.sh
     daemon: oneshot
     install-mode: disable
+    plugs:
+      - network
+      - network-bind
+      - network-control
+      - firewall-control
+      - system-etc-iproute
+      - system-etc-sysctl
 
   otbr-agent:
     after:
@@ -45,6 +71,19 @@ apps:
     daemon: simple
     install-mode: disable
     # restart-delay: 10s
+    plugs: 
+      - network 
+      - network-bind
+      - network-control
+      - avahi-control
+      - firewall-control
+      # Acess bluetooth for device discovery over BLE
+      - bluetooth-control
+      - bluez
+      # Access to RCP USB devices
+      - raw-usb
+      - system-run-openthread-wpan0
+      - system-run
 
   # Web GUI
   # The default port is 80
@@ -55,9 +94,18 @@ apps:
     daemon: simple
     install-mode: disable
     # restart-delay: 3s
+    plugs:
+      - network
+      - network-bind
+      - system-run-openthread-wpan0
+      - system-run
+    
 
   ot-ctl:
     command: bin/ot-ctl
+    plugs:
+      - system-run-openthread-wpan0
+      - system-run
   
   pskc:
     command: bin/pskc
@@ -125,6 +173,8 @@ parts:
       - libjsoncpp-dev
     override-build: |
       # Setup scripts
+      # Remove sudo from scripts
+      find ./script -type f -exec sed -i 's/sudo //g' {} +
       # TODO: This copies everything, even though most aren't required
       cp -vr ./script $CRAFT_PART_INSTALL/bin/
       chmod +x $CRAFT_PART_INSTALL/bin/script/otbr-firewall
