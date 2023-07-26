@@ -44,7 +44,7 @@ sudo snap connect openthread-border-router:system-run-openthread-wpan0
 sudo snap connect openthread-border-router:avahi-control
 # Allow setting up the firewall
 sudo snap connect openthread-border-router:firewall-control
-# Allow access to all connected USB devices via a raw interface
+# Allow access to USB Thread Radio Co-Processor (RCP)
 sudo snap connect openthread-border-router:raw-usb
 # Allow setting up the networking
 sudo snap connect openthread-border-router:network-control
@@ -65,6 +65,8 @@ sudo snap start openthread-border-router
 ```
 
 ## Usage
+
+### Control a Matter Thread device
 To commission and control a Matter Thread device via the OTBR Snap, please refer to the [wiki](https://github.com/MonicaisHer/openthread-border-router-snap/wiki/Commission-and-control-a-Matter-Thread-device-via-the-OTBR-Snap).
 
 ## Viewing logs
