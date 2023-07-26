@@ -31,24 +31,6 @@ thread-if  wpan0
 
 Change using `sudo snap openthread-border-router set key="value"`
 
-> **_NOTE:_**  If the thread interface you are using is different from the default one (wpan0), then you need to add the following [system interface](https://snapcraft.io/docs/system-files-interface) to allow OTBR snap to access system files located in `/run/openthread-<thread-if>.*` during runtime. 
-> 
-> To do this, add the following interface to the plug and otbr-agent app sections in snapcraft.yaml as shown below, then re-build the snap:
-> ```bash
-> plugs:
->   system-run-openthread-<thread-if>:
->     interface: system-files
->       write:
->         - /run/openthread-<thread-if>.lock
->         - /run/openthread-<thread-if>.sock
-> ```
-> ```bash
-> apps:
->   otbr-agent:
->     plugs: 
->         - system-run-openthread-<thread-if>
-> ```
-
 ## Grant access
 
 Connect interfaces to access desired resources:
@@ -72,9 +54,9 @@ sudo snap connect openthread-border-router:bluetooth-control
 sudo snap connect openthread-border-router:bluez
 ```
 
-> **_NOTE:_**  If the thread interface is different from the default one (wpan0), instead of `system-run-openthread-wpan0`, connect:
+> **_NOTE:_**  If the thread interface is different from the default value (wpan0), instead of `system-run-openthread-wpan0`, connect:
 > ```bash
-> sudo snap connect openthread-border-router:system-run-openthread-<thread-if>
+> sudo snap connect openthread-border-router:system-run
 > ```
 
 ## Run

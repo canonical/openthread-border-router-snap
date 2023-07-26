@@ -36,7 +36,10 @@ plugs:
     write:
       - /run/openthread-wpan0.lock
       - /run/openthread-wpan0.sock
-      
+  system-run:
+    interface: system-files
+    write:
+      - /run
 layout:
   /usr/share/otbr-web/frontend:
     symlink: $SNAP/usr/share/otbr-web/frontend
@@ -80,6 +83,7 @@ apps:
       # Access to RCP USB devices
       - raw-usb
       - system-run-openthread-wpan0
+      - system-run
 
   # Web GUI
   # The default port is 80
@@ -94,12 +98,14 @@ apps:
       - network
       - network-bind
       - system-run-openthread-wpan0
+      - system-run
     
 
   ot-ctl:
     command: bin/ot-ctl
     plugs:
       - system-run-openthread-wpan0
+      - system-run
   
 parts:
   build-bin:
