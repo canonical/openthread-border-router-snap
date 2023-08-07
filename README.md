@@ -13,10 +13,11 @@ Execute the following command from the top-level directory of this repo:
 ```bash
 snapcraft -v
 ```
+This will create a snap package file with .snap extension.
 
-This will create a snap package file with .snap extension. It can be installed locally by setting the `--devmode` flag:
+Install the locally built snap:
 ```bash
-sudo snap install ./openthread-border-router_*.snap --devmode
+sudo snap install --dangerous *.snap
 ```
 
 ## Configure
