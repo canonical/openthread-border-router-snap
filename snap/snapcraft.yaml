@@ -1,8 +1,8 @@
 name: openthread-border-router
-version: "0.1"
 # license: TBA
 summary: Snap packaging of OpenThread Border Router project for POSIX systems
 description: Refer to https://snapcraft.io/openthread-border-router
+adopt-info: otbr
 
 base: core22
 
@@ -172,6 +172,8 @@ parts:
       - libatm1
       - libjsoncpp-dev
     override-build: |
+      craftctl set version="$(git describe --tags)+snap"
+
       # Setup scripts
       # Remove sudo from scripts
       find ./script -type f -exec sed -i 's/sudo //g' {} +
