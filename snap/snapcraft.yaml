@@ -31,15 +31,7 @@ plugs:
     write:
       - /etc/sysctl.conf
       - /etc/sysctl.d
-  system-run-openthread-wpan0:
-    interface: system-files
-    write:
-      - /run/openthread-wpan0.lock
-      - /run/openthread-wpan0.sock
-  system-run:
-    interface: system-files
-    write:
-      - /run
+
 layout:
   /usr/share/otbr-web/frontend:
     symlink: $SNAP/usr/share/otbr-web/frontend
@@ -82,8 +74,6 @@ apps:
       - bluez
       # Access to RCP USB devices
       - raw-usb
-      - system-run-openthread-wpan0
-      - system-run
 
   # Web GUI
   # The default port is 80
@@ -97,15 +87,10 @@ apps:
     plugs:
       - network
       - network-bind
-      - system-run-openthread-wpan0
-      - system-run
     
 
   ot-ctl:
     command: bin/ot-ctl
-    plugs:
-      - system-run-openthread-wpan0
-      - system-run
   
   pskc:
     command: bin/pskc
@@ -181,9 +166,15 @@ parts:
       cp -vr ./script $CRAFT_PART_INSTALL/bin/
       chmod +x $CRAFT_PART_INSTALL/bin/script/otbr-firewall
 
+      OTBR_OPTIONS="-DCMAKE_INSTALL_LIBDIR=${SNAPCRAFT_PART_INSTALL}/lib/"
+      OTBR_OPTIONS+=" -DCMAKE_INSTALL_SYSCONFDIR=${SNAPCRAFT_PART_INSTALL}/etc/"
+      OTBR_OPTIONS+=" -DOT_CFLAGS=-DOPENTHREAD_POSIX_CONFIG_DAEMON_SOCKET_BASENAME=\"/run/snap.openthread-border-router/openthread-%s\""
+      # OTBR_OPTIONS+=" -DCMAKE_BUILD_TYPE=Debug"
+
       # TODO: Avoid setting INFRA_IF_NAME here
       # The value is passed to cmake-build and then added to /etc/default/otbr-agent
       # but /etc/default/otbr-agent is not used in this snap.
+      OTBR_OPTIONS=$OTBR_OPTIONS \
       PLATFORM=ubuntu \
       BUILD_DIR=$PWD/build \
       INFRA_IF_NAME=wlan0 \

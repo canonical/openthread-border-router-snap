@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-TAG="openthread-border-router.remove"
+TAG="$SNAP_NAME.remove"
 
 logger --tag=$TAG "Start"
 
@@ -37,5 +37,8 @@ source $SNAP/bin/script/_border_routing
 # NOTE: The following does not revert changes made under /proc/sys/net/ipv6/conf/.
 # But those changed don't persists on reboot.
 border_routing_uninstall
+
+
+rm -f /run/snap.$SNAP_NAME
 
 logger --tag=$TAG "End"
