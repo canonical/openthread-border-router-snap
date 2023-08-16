@@ -2,13 +2,13 @@
 
 OpenThread Border Router is a Thread border router for POSIX-based platforms.
 
-This is a snap packaging of OpenThread Border Router. The snap packaging makes it easy to setup and run the OpenThread Border Router.
+This is a snap packaging of OpenThread Border Router. The snap packaging makes it easy to setup and run the OpenThread Border Router on Linux.
 
 The snap is **NOT SUPPORTED** by the OpenThread Border Router community.
 
 OpenThread Border Router source code: https://github.com/openthread/ot-br-posix
 
-## Snap Build and Installation
+## Build and Install
 Execute the following command from the top-level directory of this repo:
 ```bash
 snapcraft -v
@@ -21,6 +21,8 @@ sudo snap install --dangerous *.snap
 ```
 
 ## Configure
+
+### Set application configurations
 View default configurations:
 ```bash
 $ sudo snap get openthread-border-router 
@@ -32,7 +34,7 @@ thread-if  wpan0
 
 Change using `sudo snap openthread-border-router set key="value"`
 
-## Grant access
+### Grant access to resources
 
 Connect interfaces to access desired resources:
 ```bash
