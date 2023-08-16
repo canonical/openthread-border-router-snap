@@ -25,7 +25,7 @@ View default configurations:
 ```bash
 $ sudo snap get openthread-border-router 
 Key        Value
-infra-if   wlp3s0
+infra-if   wlan0
 radio-url  spinel+hdlc+uart:///dev/ttyACM0
 thread-if  wpan0
 ```
