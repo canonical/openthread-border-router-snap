@@ -5,7 +5,7 @@ TAG="openthread-border-router.install"
 logger --tag=$TAG "Start"
 
 # Set defaults
-snapctl set infra-if=wlp3s0
+snapctl set infra-if=wlan0
 snapctl set thread-if=wpan0
 snapctl set radio-url="spinel+hdlc+uart:///dev/ttyACM0"
 
