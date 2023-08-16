@@ -166,10 +166,16 @@ parts:
       cp -vr ./script $CRAFT_PART_INSTALL/bin/
       chmod +x $CRAFT_PART_INSTALL/bin/script/otbr-firewall
 
+      SNAP_RUN_OTBR="/run/snap.$CRAFT_PROJECT_NAME/openthread-%s"
+
       OTBR_OPTIONS="-DCMAKE_INSTALL_LIBDIR=${SNAPCRAFT_PART_INSTALL}/lib/"
       OTBR_OPTIONS+=" -DCMAKE_INSTALL_SYSCONFDIR=${SNAPCRAFT_PART_INSTALL}/etc/"
-      OTBR_OPTIONS+=" -DOT_CFLAGS=-DOPENTHREAD_POSIX_CONFIG_DAEMON_SOCKET_BASENAME=\"/run/snap.$CRAFT_PROJECT_NAME/openthread-%s\""
+      OTBR_OPTIONS+=" -DOT_CFLAGS=-DOPENTHREAD_POSIX_CONFIG_DAEMON_SOCKET_BASENAME=\"$SNAP_RUN_OTBR\""
+      OTBR_OPTIONS+=" -DWEB_CFLAGS=-DOPENTHREAD_POSIX_DAEMON_SOCKET_NAME=\"$SNAP_RUN_OTBR.sock\""
       # OTBR_OPTIONS+=" -DCMAKE_BUILD_TYPE=Debug"
+      
+      # Add the compile option to override the posix socket
+      sed -i '/^target_compile_options/a ${WEB_CFLAGS}' src/web/CMakeLists.txt
 
       # TODO: Avoid setting INFRA_IF_NAME here
       # The value is passed to cmake-build and then added to /etc/default/otbr-agent
