@@ -57,9 +57,13 @@ sudo snap connect openthread-border-router:bluez
 ```
 
 ## Run
+Start once:
 ```bash
 sudo snap start openthread-border-router
 ```
+Add `--enable` flag to make the service start on boot as well.
+
+To query and follow the logs: `snap logs -n 10 -f openthread-border-router`
 
 ## Usage
 
@@ -92,9 +96,3 @@ where:
 
 - `8` is the Byte length of steering data (optional, default is 16).
 - `0000b57fffe15d68` is the Joiner ID (EUI-64).
-
-## Viewing logs
-```bash
-snap logs -f openthread-border-router
-```
-
