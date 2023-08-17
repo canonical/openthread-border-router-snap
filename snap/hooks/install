@@ -1,6 +1,6 @@
 #!/bin/bash -ex
 
-TAG="openthread-border-router.install"
+TAG="$SNAP_NAME.install"
 
 logger --tag=$TAG "Start"
 
@@ -10,6 +10,8 @@ snapctl set thread-if=wpan0
 snapctl set radio-url="spinel+hdlc+uart:///dev/ttyACM0"
 
 mkdir -p $SNAP_COMMON/thread-data
+
+mkdir -p /run/snap.$SNAP_NAME
 
 logger --tag=$TAG "End"
 

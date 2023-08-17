@@ -38,10 +38,9 @@ Change using `sudo snap openthread-border-router set key="value"`
 
 Connect interfaces to access desired resources:
 ```bash
-# Allow access to specific system files
+# Allow access to required system files
 sudo snap connect openthread-border-router:system-etc-iproute
 sudo snap connect openthread-border-router:system-etc-sysctl
-sudo snap connect openthread-border-router:system-run-openthread-wpan0
 
 # Allow DNS-SD registration and discovery
 sudo snap connect openthread-border-router:avahi-control
@@ -56,11 +55,6 @@ sudo snap connect openthread-border-router:bluetooth-control
 # Allow device discovery over Bluetooth Low Energy
 sudo snap connect openthread-border-router:bluez
 ```
-
-> **_NOTE:_**  If the thread interface is different from the default value (wpan0), instead of `system-run-openthread-wpan0`, connect:
-> ```bash
-> sudo snap connect openthread-border-router:system-run
-> ```
 
 ## Run
 ```bash
