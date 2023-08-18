@@ -22,15 +22,11 @@ slots:
     name: io.openthread.BorderRouter.wpan0
 
 plugs:
-  system-etc-iproute:
+  # This is required for adding "88 openthread" mapping
+  system-etc-iproute-rt-tables:
     interface: system-files
     write:
-      - /etc/iproute2
-  system-etc-sysctl:
-    interface: system-files
-    write:
-      - /etc/sysctl.conf
-      - /etc/sysctl.d
+      - /etc/iproute2/rt_tables
 
 layout:
   /usr/share/otbr-web/frontend:
@@ -53,8 +49,7 @@ apps:
       - network-bind
       - network-control
       - firewall-control
-      - system-etc-iproute
-      - system-etc-sysctl
+      - system-etc-iproute-rt-tables
 
   otbr-agent:
     after:

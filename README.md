@@ -39,8 +39,7 @@ Change using `sudo snap openthread-border-router set key="value"`
 Connect interfaces to access desired resources:
 ```bash
 # Allow access to required system files
-sudo snap connect openthread-border-router:system-etc-iproute
-sudo snap connect openthread-border-router:system-etc-sysctl
+sudo snap connect openthread-border-router:system-etc-iproute-rt-tables
 
 # Allow DNS-SD registration and discovery
 sudo snap connect openthread-border-router:avahi-control
@@ -96,3 +95,7 @@ where:
 
 - `8` is the Byte length of steering data (optional, default is 16).
 - `0000b57fffe15d68` is the Joiner ID (EUI-64).
+
+## Limitations
+
+- DUA Routing
