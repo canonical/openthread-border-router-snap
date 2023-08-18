@@ -36,7 +36,7 @@ Change using `sudo snap openthread-border-router set key="value"`
 
 > **Note**  
 > The snap defines a dbus interface only for a Thread interface named `wpan0`.
-> Running the snap with another interface name is only possible in [dev mode](https://snapcraft.io/docs/install-modes), or after modifying the interface definition in the snapscraft file.
+> Running the snap with another interface name is only possible in [dev mode](https://snapcraft.io/docs/install-modes), or after modifying the interface definition in the snapcraft file.
 
 ### Grant access to resources
 
