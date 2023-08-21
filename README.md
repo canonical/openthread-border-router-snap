@@ -92,7 +92,3 @@ where:
 
 - `8` is the Byte length of steering data (optional, default is 16).
 - `0000b57fffe15d68` is the Joiner ID (EUI-64).
-
-## Limitations
-
-- DUA Routing
