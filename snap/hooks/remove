@@ -9,12 +9,7 @@ logger --tag=$TAG "Start"
 logger --tag=$TAG "Remove the firewall config"
 $SNAP/bin/script/otbr-firewall stop
 
-###############################################################################
-logger --tag=$TAG "Remove IP routing tables"
-# From _rt_tables
-# # https://github.com/openthread/ot-br-posix/blob/thread-reference-20230119/script/_rt_tables
-# TODO: replace with ip command
-sed -i.bak '/88\s\+openthread/d' /etc/iproute2/rt_tables
+
 
 rm -f /run/snap.$SNAP_NAME
 

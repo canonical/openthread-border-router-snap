@@ -38,9 +38,6 @@ Change using `sudo snap openthread-border-router set key="value"`
 
 Connect interfaces to access desired resources:
 ```bash
-# Allow access to required system files
-sudo snap connect openthread-border-router:system-etc-iproute-rt-tables
-
 # Allow DNS-SD registration and discovery
 sudo snap connect openthread-border-router:avahi-control
 # Allow setting up the firewall

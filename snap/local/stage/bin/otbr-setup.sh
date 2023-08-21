@@ -24,8 +24,8 @@ sysctl -w net.ipv4.ip_forward=1
 echo "Setup RT Tables for the Backbone Router"
 # Upstream equivalent:
 # https://github.com/openthread/ot-br-posix/blob/thread-reference-20230119/script/_rt_tables
-# TODO: replace with ip command
-sh -c 'echo "88 openthread" >>/etc/iproute2/rt_tables'
+# Skip setting "88 openthread" routing table mapping:
+# https://github.com/canonical/openthread-border-router-snap/issues/14
 sysctl net.core.optmem_max=65536
 
 ###############################################################################
