@@ -3,6 +3,6 @@
 # Placeholder to allow setting snap configurations
 
 if [ "$(snapctl get thread-if)" != "wpan0" ]; then
-    echo "Thread interface name cannot be configured as 'wpan0' has been hardcoded in setup scripts as well as the DBus policy"
+    echo "Thread interface name cannot be re-configured since 'wpan0' has been hardcoded in setup scripts as well as the DBus policy"
     exit 1
 fi
