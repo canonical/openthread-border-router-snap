@@ -32,7 +32,7 @@ radio-url  spinel+hdlc+uart:///dev/ttyACM0
 thread-if  wpan0
 ```
 
-Change using `sudo snap openthread-border-router set key="value"`
+Change using `sudo snap set openthread-border-router key="value"`
 
 ### Grant access to resources
 
