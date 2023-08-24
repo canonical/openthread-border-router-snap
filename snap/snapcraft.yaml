@@ -21,17 +21,6 @@ slots:
     bus: system
     name: io.openthread.BorderRouter.wpan0
 
-plugs:
-  system-etc-iproute:
-    interface: system-files
-    write:
-      - /etc/iproute2
-  system-etc-sysctl:
-    interface: system-files
-    write:
-      - /etc/sysctl.conf
-      - /etc/sysctl.d
-
 layout:
   /usr/share/otbr-web/frontend:
     symlink: $SNAP/usr/share/otbr-web/frontend
@@ -53,8 +42,6 @@ apps:
       - network-bind
       - network-control
       - firewall-control
-      - system-etc-iproute
-      - system-etc-sysctl
 
   otbr-agent:
     after:

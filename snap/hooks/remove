@@ -9,34 +9,6 @@ logger --tag=$TAG "Start"
 logger --tag=$TAG "Remove the firewall config"
 $SNAP/bin/script/otbr-firewall stop
 
-# Custom initrc without staging and build logic
-export PLATFORM=ubuntu
-. $SNAP/bin/_initrc_install
-
-###############################################################################
-logger --tag=$TAG "Remove IP forwarding"
-source $SNAP/bin/script/_ipforward
-# NOTE: The following does not revert changes to /proc/sys/net/
-# But those changed don't persists on reboot.
-ipforward_uninstall
-
-###############################################################################
-logger --tag=$TAG "Remove RT Tables for the Backbone Router"
-source $SNAP/bin/script/_rt_tables
-# NOTE: The following does not revert changes to /etc/sysctl.conf 
-export BACKBONE_ROUTER=1
-rt_tables_uninstall
-
-###############################################################################
-logger --tag=$TAG "Remove NAT44 - no op"
-
-###############################################################################
-logger --tag=$TAG "Remove Border Routing"
-export BORDER_ROUTING=1
-source $SNAP/bin/script/_border_routing
-# NOTE: The following does not revert changes made under /proc/sys/net/ipv6/conf/.
-# But those changed don't persists on reboot.
-border_routing_uninstall
 
 
 rm -f /run/snap.$SNAP_NAME
