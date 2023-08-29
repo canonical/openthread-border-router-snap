@@ -5,11 +5,7 @@ it is essential to build and flash the RCP firmware onto the dongle.  To do this
 
 ### Build and flash RCP firmware on nRF52480 dongle:
 
-Following the instructions [here](https://github.com/openthread/openthread/blob/main/src/posix/README.md#build-1), 
-ensuring you include the `-DOTTHREAD_VERSION=1.2` flag::
-```
-script/build nrf52840 USB_trans -DOT_BOOTLOADER=USB -DOTTHREAD_VERSION=1.2
-```
+Following the instructions [here](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/1.9.99-dev1/matter/openthread_rcp_nrf_dongle.html):
 
 If you encounter an error related to pip during the installation of nRF Util, update pip with the following commands:
 ```
@@ -46,6 +42,7 @@ $ sudo dmesg -W
 
 ### References:
 - https://github.com/openthread/openthread/blob/main/src/posix/README.md#nordic-semiconductor-nrf52840
+- https://developer.nordicsemi.com/nRF_Connect_SDK/doc/1.9.99-dev1/matter/openthread_rcp_nrf_dongle.html
 - https://github.com/canonical/openthread-border-router-snap/wiki/Commission-and-control-a-Matter-Thread-device-via-the-OTBR-Snap
 - https://github.com/openthread/ot-nrf528xx/blob/main/src/nrf52840/README.md#mass-storage-device-known-issue
 - https://github.com/crownstone/bluenet/issues/81#issuecomment-561257090
