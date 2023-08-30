@@ -14,9 +14,10 @@ Following the instructions [here](https://developer.nordicsemi.com/nRF_Connect_S
 
 ##### Finding the device name
 
-During the setup process, ensure that the dongle device is connected and recognized as expected at `/dev/ttyACM0`. 
-The `dmesg` command can help with this verification. 
-Here's an example of how to use it: 
+For flashing the firmware and using the RCP, you need to find the device name assigned to the dongle.
+
+The simplest way to do so is to run `dmesg` with the `-w`/`--follow` flag before connecting the device. 
+Here is an example, showing device name `ttyACM0` which means that the device path on the system would be `/dev/ttyACM0`:
 ```
 $ sudo dmesg -W
 [23930.322598] usb 1-8: USB disconnect, device number 24
