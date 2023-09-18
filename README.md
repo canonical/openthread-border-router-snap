@@ -8,17 +8,13 @@ The snap is **NOT SUPPORTED** by the OpenThread Border Router community.
 
 OpenThread Border Router source code: https://github.com/openthread/ot-br-posix
 
-## Build and Install
-Execute the following command from the top-level directory of this repo:
+## Install
+The snap can be installed from the store:
 ```bash
 snapcraft -v
 ```
-This will create a snap package file with .snap extension.
 
-Install the locally built snap:
-```bash
-sudo snap install --dangerous *.snap
-```
+To build locally and install, refer [here](#build).
 
 ## Configure
 
@@ -92,3 +88,20 @@ where:
 
 - `8` is the Byte length of steering data (optional, default is 16).
 - `0000b57fffe15d68` is the Joiner ID (EUI-64).
+
+## Build
+
+Build locally for the same architecture as the host:
+```bash
+snapcraft -v
+```
+
+Build remotely for all supported architectures:
+```
+snapcraft remote-build
+```
+
+Given the snap package file with `.snap` extension, install:
+```bash
+sudo snap install --dangerous *.snap
+```
