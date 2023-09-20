@@ -1,4 +1,5 @@
 # openthread-border-router-snap
+[![openthread-border-router](https://snapcraft.io/openthread-border-router/badge.svg)](https://snapcraft.io/openthread-border-router)
 
 OpenThread Border Router is a Thread border router for POSIX-based platforms.
 
@@ -11,7 +12,7 @@ OpenThread Border Router source code: https://github.com/openthread/ot-br-posix
 ## Install
 The snap can be installed from the store:
 ```bash
-snapcraft -v
+sudo snap install openthread-border-router
 ```
 
 To build locally and install, refer [here](#build).
