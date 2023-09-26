@@ -33,21 +33,6 @@ Change using `sudo snap set openthread-border-router key="value"`
 
 ### Grant access to resources
 
-> **Note**  
-> On **Ubuntu Core**, the `avahi-control` and `bluez` interfaces are not provided by the system. Instead, this functionality depends on the Avahi snap and Bluez snap.
-> 
-> To use the `avahi-control` interface from the `avahi` snap, run:
-> ```bash
-> sudo snap install avahi
-> sudo snap connect openthread-border-router:avahi-control avahi:avahi-control
-> ```
-> To use the `bluez` interface from the `bluez` snap, run:
-> ```bash
-> sudo snap install bluez
-> sudo snap connect openthread-border-router:bluez bluez
-> ```
-> 
-
 Connect interfaces to access desired resources:
 ```bash
 # Allow DNS-SD registration and discovery
@@ -63,6 +48,18 @@ sudo snap connect openthread-border-router:bluetooth-control
 # Allow device discovery over Bluetooth Low Energy
 sudo snap connect openthread-border-router:bluez
 ```
+
+> **Note**  
+> On **Ubuntu Core**, the `avahi-control` and `bluez` interfaces are not provided by the system.
+> These interfaces should be consumed from other snaps, such as the [Avahi](https://snapcraft.io/avahi) and [BlueZ](https://snapcraft.io/bluez) snaps.
+> 
+> To install the snaps, and establish connections for the `avahi-control` interface from the `avahi` snap, and the `service` interface from the `bluez` snap, run:
+> ```bash
+> sudo snap install avahi bluez
+> sudo snap connect openthread-border-router:avahi-control avahi:avahi-control
+> sudo snap connect openthread-border-router:bluez bluez:service
+> ```
+> 
 
 ## Run
 Start once:
