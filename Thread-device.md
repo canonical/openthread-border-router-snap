@@ -11,8 +11,8 @@
 
 ### 1. Setting up the Build Environment for nRF Connect SDK and Matter SDK
 
-First, follow [this](https://github.com/project-chip/connectedhomeip/tree/v1.1.0.1/examples/lighting-app/nrfconnect#using-native-shell-for-setup)
-guide for steps 1 and 2 to install `nRF command-line tools`, `GN`, and `nRF Connect for Desktop`.
+First, follow [Using native shell for setup](https://github.com/project-chip/connectedhomeip/tree/v1.1.0.1/examples/lighting-app/nrfconnect#using-native-shell-for-setup)
+guide's steps 1 and 2 to install `nRF command-line tools`, `GN`, and `nRF Connect for Desktop`.
 
 Once nRF Desktop is installed, change its permissions, install dependencies, and run it:
 ```bash
@@ -44,24 +44,24 @@ source scripts/activate.sh
 (Note: The activate script might throw errors, but they do not prevent the next step.)
 
 ### 3. Building the Matter Lighting Example Firmware:
-Support for DFU (Device Firmware Upgrade) using Matter OTA is enabled by default. 
-To make the firmware build successfully for the dongle (nRF52840 dongle doesn't have the external flash required for DFU), use the following command:
+By default, support for DFU (Device Firmware Upgrade) using Matter OTA is enabled.
+To ensure successful firmware building for the dongle, utilize the following command, considering thatnRF52840 dongle doesn't have the external flash required for DFU:
 ```bash
 cd examples/lighting-app/nrfconnect
 west build -b nrf52840dongle_nrf52840 -- -DCONF_FILE=./prj_no_dfu.conf
 ```
 
-The output zephyr.hex file will be available at: `~/connectedhomeip/examples/lighting-app/nrfconnect/build/zephyr/zephyr.hex`.
+The output `zephyr.hex` file will be available at: `~/connectedhomeip/examples/lighting-app/nrfconnect/build/zephyr/zephyr.hex`.
 
 ### 4. Flashing the Firmware on the Dongle using nRF Desktop:
 
-Follow the "Programming the nRF52840 Dongle" section in [this](https://infocenter.nordicsemi.com/index.jsp?topic=%2Fug_nc_programmer%2FUG%2Fnrf_connect_programmer%2Fncp_introduction.html) 
+Refer to the "Programming the nRF52840 Dongle" section in [nRF Connect Programmer](https://infocenter.nordicsemi.com/index.jsp?topic=%2Fug_nc_programmer%2FUG%2Fnrf_connect_programmer%2Fncp_introduction.html) 
 guide to flash the firmware on the dongle.
 
 If you encounter the issue "Could not properly detect an unknown device. Please make sure you have nrf-udev installed," 
 then install nrf-udev from [here](https://github.com/NordicSemiconductor/nrf-udev).
 
-Upon successful flashing, logs will show:
+Upon successful flashing, logs will display:
 ```bash
 Uploading image through SDFU: 100%
 All DFU images have been written to the target device
@@ -69,15 +69,16 @@ Target device closed
 ```
 
 ### 5. Running the Matter Thread Lighting Device:
-Connect the dongle to the USB port, then use `minicom` to run the lighting app:
+Connect the dongle to a USB port, then use `minicom` to run the lighting app:
 ```bash
 sudo apt install minicom
 sudo minicom -D /dev/ttyACM0 -b 115200
 ```
-### Further Reading: Add the Matter Thread device into the Thread network.
+### Further Reading: 
 
-Before pairing the Matter Thread device, 
-perform a clean factory reset following [this](https://github.com/canonical/openthread-border-router-snap/wiki/nRF52840-dongle:-Erasing-persisted-data-of-Matter-Lighting-App) guide.
+- [nRF52840 dongle: Erasing persisted data of Matter Lighting App](https://github.com/canonical/openthread-border-router-snap/wiki/nRF52840-dongle:-Erasing-persisted-data-of-Matter-Lighting-App)
 
-Then, follow [Commission and control a Matter Thread device via the OTBR Snap](https://github.com/canonical/openthread-border-router-snap/wiki/Commission-and-control-a-Matter-Thread-device-via-the-OTBR-Snap)
-to test the fimware flashed on dongle.
+- [Commission and control a Matter Thread device via the OTBR Snap](https://github.com/canonical/openthread-border-router-snap/wiki/Commission-and-control-a-Matter-Thread-device-via-the-OTBR-Snap)
+
+### References
+TBA
