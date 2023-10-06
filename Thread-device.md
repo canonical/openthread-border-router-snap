@@ -12,7 +12,7 @@ Complete the following steps to build and flash the firmware:
 ### Version tested in this guide
 - Nordic Semiconductor's nRF Connect for Desktop: 4.2.0
 - Nordic Semiconductor's nRF Connect SDK: 2.4.2
-- [Matter](https://github.com/project-chip/connectedhomeip) SDK: 1.1.0.1
+- [Matter SDK](https://github.com/project-chip/connectedhomeip): 1.1.0.1
 
 ### 1. Setting up the Build Environment for nRF Connect SDK and Matter SDK
 
@@ -26,10 +26,10 @@ sudo apt install libfuse2
 ./nrfconnect-4.2.0-x86_64.appimage
 ```
 
-In nRF Connect for Desktop, install the latest `toolchain manager` and `nRF Connect SDK v2.4.2`. 
-After installations, click the down arrow next to the nRF Connect SDK version you installed and select `Open Terminal` or `Open Bash`.
+In nRF Connect for Desktop, install the latest **Toolchain Manager** and **nRF Connect SDK v2.4.2**. 
+After installations, click the down arrow next to the nRF Connect SDK version you installed and select **Open Terminal** or **Open Bash**.
 
-### 2. Installing and Activating Matter SDK:
+### 2. Installing and Activating Matter SDK
 Install the Matter SDK with a shallow clone for the Linux platform:
 ```bash
 cd ~
@@ -73,7 +73,7 @@ Target device closed
 ```
 
 ### 5. Running the Matter Thread Lighting Device:
-Connect the dongle to a USB port, then use `minicom` to run the lighting app:
+Connect the dongle to a USB port, then use `minicom` to open a serial consol and start the lighting app:
 ```bash
 sudo apt install minicom
 sudo minicom -D /dev/ttyACM0 -b 115200
