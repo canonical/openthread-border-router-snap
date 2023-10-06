@@ -60,7 +60,7 @@ Update the nRF Connect SDK to the most recent supported revision for Matter SDK:
 python3 scripts/setup/nrfconnect/update_ncs.py --update
 ```
 
-### 4. Building the Matter Lighting Example Firmware:
+### 4. Building the Matter Lighting Example Firmware
 By default, support for DFU (Device Firmware Upgrade) using Matter OTA(Over-The-Air) is enabled.
 This needs to be disabled for the nRF52840 dongle because it doesn't have the external flash required for DFU:
 
@@ -71,7 +71,7 @@ west build -b nrf52840dongle_nrf52840 -- -DCONF_FILE=./prj_no_dfu.conf
 
 The output `zephyr.hex` file will be available at: `~/connectedhomeip/examples/lighting-app/nrfconnect/build/zephyr/zephyr.hex`.
 
-### 5. Flashing the Firmware on the Dongle using nRF Desktop:
+### 5. Flashing the Firmware on the Dongle using nRF Desktop
 
 Refer to the "Programming the nRF52840 Dongle" section in [nRF Connect Programmer](https://infocenter.nordicsemi.com/index.jsp?topic=%2Fug_nc_programmer%2FUG%2Fnrf_connect_programmer%2Fncp_introduction.html) 
 guide to flash the firmware on the dongle.
@@ -86,13 +86,13 @@ All DFU images have been written to the target device
 Target device closed
 ```
 
-### 6. Running the Matter Thread Lighting Device:
+### 6. Running the Matter Thread Lighting Device
 Connect the dongle to a USB port, then use `minicom` to open a serial consol and start the lighting app:
 ```bash
 sudo apt install minicom
 sudo minicom -D /dev/ttyACM0 -b 115200
 ```
-### Further Reading: 
+### Further Reading
 
 - [nRF52840 dongle: Erasing persisted data of Matter Lighting App](https://github.com/canonical/openthread-border-router-snap/wiki/nRF52840-dongle:-Erasing-persisted-data-of-Matter-Lighting-App)
 - [Commission and control a Matter Thread device via the OTBR Snap](https://github.com/canonical/openthread-border-router-snap/wiki/Commission-and-control-a-Matter-Thread-device-via-the-OTBR-Snap)
