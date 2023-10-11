@@ -30,6 +30,8 @@
 
 echo "OTBR oneshot setup service"
 
+mkdir -p /run/snap.$SNAP_NAME
+
 # The operations performed here get reversed upon reboot and removal of the snap.
 # The removal script is at snap/hooks/remove
 

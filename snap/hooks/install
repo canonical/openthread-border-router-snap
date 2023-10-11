@@ -11,7 +11,5 @@ snapctl set radio-url="spinel+hdlc+uart:///dev/ttyACM0"
 
 mkdir -p $SNAP_COMMON/thread-data
 
-mkdir -p /run/snap.$SNAP_NAME
-
 logger --tag=$TAG "End"
 
