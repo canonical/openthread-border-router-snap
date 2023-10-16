@@ -11,7 +11,7 @@ OpenThread Border Router source code: https://github.com/openthread/ot-br-posix
 
 For issues related to this snap, refer [here](https://github.com/canonical/openthread-border-router-snap/issues).
 
-Usage instructions are available below.
+Usage instructions are available below and on the **[wiki](https://github.com/canonical/openthread-border-router-snap/wiki)**.
 
 ## Install
 The snap can be installed from the store:
