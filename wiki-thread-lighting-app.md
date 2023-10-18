@@ -20,15 +20,15 @@ Here are step-by-step instructions:
   - Matter Thread ligting App
 - Machine B running
   - OTBR snap
-  - [chip-tool snap](https://snapcraft.io/chip-tool)
+  - [Chip Tool snap](https://snapcraft.io/chip-tool)
 
 #### Versions Tested in This Guide
-- Matter SDK: [`6b01cb9`](https://github.com/project-chip/connectedhomeip/commit/6b01cb977127eb8547ce66d5b627061dc2dd6c90)
-- RCP: [`00ac6cd`](https://github.com/openthread/ot-nrf528xx/tree/00ac6cd0137a4f09288b455bf8d7aa72d74062d1) (API version 6)
+- Matter SDK: [`6b01cb9`](https://github.com/project-chip/connectedhomeip/commit/6b01cb977127eb8547ce66d5b627061dc2dd6c90) (API version: 6)
+- RCP firmware: [`00ac6cd`](https://github.com/openthread/ot-nrf528xx/tree/00ac6cd0137a4f09288b455bf8d7aa72d74062d1) (API version: 6)
 
 #### 1. Form a Thread Network on Machine A
-On Machine A, following this guide to [install and configure](https://github.com/canonical/openthread-border-router-snap/wiki/Commission-and-control-a-Matter-Thread-device-via-the-OTBR-Snap#install-and-configure-the-otbr-snap) 
-the OTBR snap and [form a Thread network](https://github.com/canonical/openthread-border-router-snap/wiki/Commission-and-control-a-Matter-Thread-device-via-the-OTBR-Snap#form-a-thread-network) 
+On Machine A, following this guide to [install and configure the OTBR snap](https://github.com/canonical/openthread-border-router-snap/wiki/Commission-and-control-a-Matter-Thread-device-via-the-OTBR-Snap#install-and-configure-the-otbr-snap) 
+and [form a Thread network](https://github.com/canonical/openthread-border-router-snap/wiki/Commission-and-control-a-Matter-Thread-device-via-the-OTBR-Snap#form-a-thread-network) 
 using the nRF52840 Dongle as the RCP. For details on setting up the RCP, 
 pelase refer to [Build and flash RCP firmware on nRF52480 dongle](https://github.com/canonical/openthread-border-router-snap/wiki/Setup-OpenThread-Border-Router-with-nRF52840-Dongle#build-and-flash-rcp-firmware-on-nrf52480-dongle).
 
@@ -75,7 +75,7 @@ to run OTBR dbus daemon, which is needed to support lighting app's Thread featur
 [here](https://github.com/project-chip/connectedhomeip/tree/6b01cb977127eb8547ce66d5b627061dc2dd6c90/examples/lighting-app/linux#commandline-arguments).
 
 #### 4. Pair the Matter Thread Lighting Device via Chip Tool on Machine A
-follow
+Follow
 [Commission and control a Matter Thread device via the OTBR Snap](https://github.com/canonical/openthread-border-router-snap/wiki/Commission-and-control-a-Matter-Thread-device-via-the-OTBR-Snap#pair-the-thread-lighting-device)
 to pair the Matter Thread lighting device with the Thread network.
 
@@ -83,9 +83,10 @@ to pair the Matter Thread lighting device with the Thread network.
 Read the "Control the Device" section on [Commission and control a Matter Thread device via the OTBR Snap](https://github.com/canonical/openthread-border-router-snap/wiki/Commission-and-control-a-Matter-Thread-device-via-the-OTBR-Snap#control-the-device) 
 to control the lighting device.
 
-If you are running the lighting app with **Option 1** (native lighting app), upon successful execution, the lighting status should be updated to "on" or "off" in the lighting app's logs:
+If you are running the lighting app with **Option 1** (native lighting app), upon successful execution, the lighting status should be updated to "1/on" or "0/off" in the lighting app's logs:
 ```bash
 $ sudo snap logs -f matter-pi-gpio-commander
+...
 CHIP:DMG: Received command for Endpoint=1 Cluster=0x0000_0006 Command=0x0000_0002
 CHIP:ZCL: Toggle ep1 on/off from state 0 to 1
 ```
@@ -94,6 +95,7 @@ If you are using **Option 2** (GPIO Commander Snap), upon successful execution, 
 ### References
 - [Commission and control a Matter Thread device via the OTBR Snap](https://github.com/canonical/openthread-border-router-snap/wiki/Commission-and-control-a-Matter-Thread-device-via-the-OTBR-Snap)
 - [Setup OpenThread Border Router with nRF52840 Dongle](https://github.com/canonical/openthread-border-router-snap/wiki/Setup-OpenThread-Border-Router-with-nRF52840-Dongle)
+- [Matter Linux Lighting Example](https://github.com/project-chip/connectedhomeip/tree/6b01cb977127eb8547ce66d5b627061dc2dd6c90/examples/lighting-app/linux#chip-linux-lighting-example)
 - https://github.com/project-chip/connectedhomeip/issues/29738
 
 
