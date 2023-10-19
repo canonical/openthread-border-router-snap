@@ -27,17 +27,17 @@ Here are step-by-step instructions:
 - RCP firmware: [`00ac6cd`](https://github.com/openthread/ot-nrf528xx/tree/00ac6cd0137a4f09288b455bf8d7aa72d74062d1) (API version: 6)
 
 #### 1. Form a Thread Network on Machine A
-On Machine A, following this guide to [install and configure the OTBR snap](https://github.com/canonical/openthread-border-router-snap/wiki/Commission-and-control-a-Matter-Thread-device-via-the-OTBR-Snap#install-and-configure-the-otbr-snap) 
+On Machine A, following the guide to [install and configure the OTBR snap](https://github.com/canonical/openthread-border-router-snap/wiki/Commission-and-control-a-Matter-Thread-device-via-the-OTBR-Snap#install-and-configure-the-otbr-snap) 
 and [form a Thread network](https://github.com/canonical/openthread-border-router-snap/wiki/Commission-and-control-a-Matter-Thread-device-via-the-OTBR-Snap#form-a-thread-network) 
 using the nRF52840 Dongle as the RCP. For details on setting up the RCP, 
-pelase refer to [Build and flash RCP firmware on nRF52480 dongle](https://github.com/canonical/openthread-border-router-snap/wiki/Setup-OpenThread-Border-Router-with-nRF52840-Dongle#build-and-flash-rcp-firmware-on-nrf52480-dongle).
+please refer to [Build and flash RCP firmware on nRF52480 dongle](https://github.com/canonical/openthread-border-router-snap/wiki/Setup-OpenThread-Border-Router-with-nRF52840-Dongle#build-and-flash-rcp-firmware-on-nrf52480-dongle).
 
 #### 2. Run a Matter Thread Lighting App on Machine B
 There are two options to run a Matter Thread lighting application. 
 
-**Option 1**: Native Build Lighting App
+**Option 1**: Native Built Lighting App
 
-You can choose this option to build and run the Matter Thread lighting app from the Matter SDK in the native shell. With this option, you can observe the lighting status (on/off) from the logs.
+You can choose this option to build and run the [Matter Thread lighting app example](https://github.com/project-chip/connectedhomeip/tree/6b01cb977127eb8547ce66d5b627061dc2dd6c90/examples/lighting-app/linux) natively. With this option, you can observe the lighting status (on/off) from the logs.
 
 To get started, follow these steps:
 
