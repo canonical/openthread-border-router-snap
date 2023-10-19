@@ -8,11 +8,11 @@ Here are step-by-step instructions:
 - Machine A
   - nRF52840 dongle as [Radio Co-Processor (RCP)](https://openthread.io/platforms/co-processor#radio_co-processor_rcp)
   - Choose one of the following options:
-    - PC running Ubuntu Classic 23.04 OS
-    - Raspberry Pi 4B running Ubuntu Server 22.04 OS or Ubuntu Core 22, and an LED light
+    - Option 1: PC running Ubuntu Desktop 23.04 OS
+    - Option 2 :Raspberry Pi 4B running Ubuntu Server 22.04 OS or Ubuntu Core 22, and an LED light
 - Machine B
   - nRF52840 dongle as RCP
-  - PC running Ubuntu Classic 23.04 OS
+  - PC running Ubuntu Desktop 23.04 OS
  
 #### Environment Setup
 - Machine A running
@@ -69,10 +69,15 @@ provided at [Setup OpenThread Border Router with nRF52840 Dongle](https://github
 
 TBA: Then, running the GPIO commander snap with Thread feature enabled.
 
-#### 3. Run OTBR D-Bus Daemon on Machine B
+#### 3. Run OpenThread Border Router Agent on Machine B
 Check the [install and configure the OTBR snap](https://github.com/canonical/openthread-border-router-snap/wiki/Commission-and-control-a-Matter-Thread-device-via-the-OTBR-Snap#install-and-configure-the-otbr-snap) section
-to run OTBR dbus daemon, which is needed to support lighting app's Thread feature as pointed 
+to run OTBR agent. The lighting app communicates with OTBR agent via the dbus message bus. This is necessary to support the lighting app's Thread feature, as explained
 [here](https://github.com/project-chip/connectedhomeip/tree/6b01cb977127eb8547ce66d5b627061dc2dd6c90/examples/lighting-app/linux#commandline-arguments).
+
+> Note: Only the OTBR agent is required, and the GUI (openthread-border-router.otbr-web) is optional. The OTBR agent can be started by running the following command:
+> ```bash
+> sudo snap start openthread-border-router.otbr-agent
+> ```
 
 #### 4. Pair the Matter Thread Lighting Device via Chip Tool on Machine A
 Follow
