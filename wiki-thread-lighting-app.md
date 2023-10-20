@@ -15,7 +15,7 @@ Here are step-by-step instructions:
 #### Environment Setup
 - Machine A running
   - [OpenThread Border Router (OTBR) snap](https://snapcraft.io/openthread-border-router)
-  - Matter Thread ligting App
+  - Matter Lighting App for Linux example
 - Machine B running
   - OTBR snap
   - [Chip Tool snap](https://snapcraft.io/chip-tool)
@@ -32,12 +32,12 @@ with openthread submodule commit [`9af0bfa`](https://github.com/openthread/opent
 #### 1. Form a Thread Network on Machine A
 On Machine A, following the guide to [install and configure the OTBR snap](https://github.com/canonical/openthread-border-router-snap/wiki/Commission-and-control-a-Matter-Thread-device-via-the-OTBR-Snap#install-and-configure-the-otbr-snap) 
 and [form a Thread network](https://github.com/canonical/openthread-border-router-snap/wiki/Commission-and-control-a-Matter-Thread-device-via-the-OTBR-Snap#form-a-thread-network) 
-using the nRF52840 Dongle as the RCP. For details on setting up the RCP, 
-please refer to [Build and flash RCP firmware on nRF52480 dongle](https://github.com/canonical/openthread-border-router-snap/wiki/Setup-OpenThread-Border-Router-with-nRF52840-Dongle#build-and-flash-rcp-firmware-on-nrf52480-dongle).
+using the nRF52840 Dongle as the RCP. For details on setting up the OpenThread RCP, 
+please refer [here](https://github.com/canonical/openthread-border-router-snap/wiki/Setup-OpenThread-Border-Router-with-nRF52840-Dongle#build-and-flash-rcp-firmware-on-nrf52480-dongle).
 
-#### 2. Run a Matter Thread Lighting App on Machine B
+#### 2. Run a Matter Lighting App on Machine B
 
-Build and run the [Matter Thread lighting app example](https://github.com/project-chip/connectedhomeip/tree/6b01cb977127eb8547ce66d5b627061dc2dd6c90/examples/lighting-app/linux) natively. By doing so, you will be able to observe the lighting status (on/off) from the logs later.
+Build and run the [Matter lighting app example](https://github.com/project-chip/connectedhomeip/tree/6b01cb977127eb8547ce66d5b627061dc2dd6c90/examples/lighting-app/linux) natively. By doing so, you will be able to observe the lighting status (on/off) from the logs later.
 
 To get started, follow these steps:
 
