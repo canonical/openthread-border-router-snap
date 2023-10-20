@@ -15,8 +15,9 @@ confinement: strict
 
 
 slots:
-  # This adds the needed security policy for the communication
-  dbus-otbr-interface:
+  # This adds the needed security policy for the communication.
+  # It is also used for communication between third-party apps and the OTBR agent for Thread networking
+  dbus-wpan0:
     interface: dbus
     bus: system
     name: io.openthread.BorderRouter.wpan0
