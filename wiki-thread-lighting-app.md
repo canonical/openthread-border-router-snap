@@ -21,8 +21,13 @@ Here are step-by-step instructions:
   - [Chip Tool snap](https://snapcraft.io/chip-tool)
 
 #### Versions Tested in This Guide
-- Matter SDK: [`6b01cb9`](https://github.com/project-chip/connectedhomeip/commit/6b01cb977127eb8547ce66d5b627061dc2dd6c90) (API version: 6)
-- RCP firmware: [`00ac6cd`](https://github.com/openthread/ot-nrf528xx/tree/00ac6cd0137a4f09288b455bf8d7aa72d74062d1) (API version: 6)
+- Matter SDK: [`6b01cb9`](https://github.com/project-chip/connectedhomeip/commit/6b01cb977127eb8547ce66d5b627061dc2dd6c90)
+- OTBR SDK: [`thread-reference-20230119`](https://github.com/openthread/ot-br-posix/tree/thread-reference-20230119)
+(API version: [6](https://github.com/openthread/openthread/blob/thread-reference-20230119/src/lib/spinel/spinel.h#L380))
+
+- RCP firmware: [`00ac6cd`](https://github.com/openthread/ot-nrf528xx/tree/00ac6cd0137a4f09288b455bf8d7aa72d74062d1)
+with openthread submodule commit [`9af0bfa`](https://github.com/openthread/openthread/tree/9af0bfa60e373d81a5576b298d6664045870a375)
+(API version: [6](https://github.com/openthread/openthread/blob/9af0bfa60e373d81a5576b298d6664045870a375/src/lib/spinel/spinel.h#L420))
 
 #### 1. Form a Thread Network on Machine A
 On Machine A, following the guide to [install and configure the OTBR snap](https://github.com/canonical/openthread-border-router-snap/wiki/Commission-and-control-a-Matter-Thread-device-via-the-OTBR-Snap#install-and-configure-the-otbr-snap) 
@@ -36,20 +41,22 @@ Build and run the [Matter Thread lighting app example](https://github.com/projec
 
 To get started, follow these steps:
 
-- 1. Install the Matter SDK with a shallow clone for the Linux platform:
+1. Install the Matter SDK with a shallow clone for the Linux platform:
 ```bash
 git clone https://github.com/project-chip/connectedhomeip.git --depth=1
 cd connectedhomeip
 git checkout 6b01cb977127eb8547ce66d5b627061dc2dd6c90
 scripts/checkout_submodules.py --shallow --platform linux
 ```
-- 2. Build the lighting app:
+
+2. Build the lighting app:
 ```bash
 cd examples/lighting-app/linux
 gn gen out/debug
 ninja -C out/debug
 ```
-- 3. Run the lighting app with Thread feature enabled:
+
+3. Run the lighting app with Thread feature enabled:
 ```bash
 ./out/debug/chip-lighting-app --thread
 ```
@@ -61,14 +68,14 @@ The lighting app communicates with OTBR agent via the dbus message bus. This is 
 
 Follow these steps to run OTBR agent:
 
-- 1. [Install and configure](https://github.com/canonical/openthread-border-router-snap#readme) OTBR snap
-- 2. Plugging the dongle
-- 3. Starting the agent (for details, refer [here](https://github.com/canonical/openthread-border-router-snap#run))
+1. Install and configure OTBR snap by referring [here](https://github.com/canonical/openthread-border-router-snap#readme)
+2. Plug the nRF52840 dongle with the OTBR firmware. This is the same firmware used on the dongle connected to machine A. Please refer to [here](https://github.com/canonical/openthread-border-router-snap/wiki/Setup-OpenThread-Border-Router-with-nRF52840-Dongle#build-and-flash-rcp-firmware-on-nrf52480-dongle) for building and flashing the OpenThread RCP firmware on it.
+3. Start only the OTBR agent (the GUI is not required):
 ```bash
 sudo snap start openthread-border-router.otbr-agent
 ```
 
-> Note: Only the OTBR agent is required, and the GUI (openthread-border-router.otbr-web) is optional.
+For more details on running the snap and logging, refer [here](https://github.com/canonical/openthread-border-router-snap#run).
 
 #### 4. Pair the Matter Thread Lighting Device via Chip Tool on Machine A
 Follow
