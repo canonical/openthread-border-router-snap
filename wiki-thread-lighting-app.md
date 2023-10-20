@@ -4,12 +4,10 @@ This guide will walk you through the process of building, running, and controlli
 
 Here are step-by-step instructions:
 
-#### Hardware Setup
+#### Tested Hardware
 - Machine A
   - nRF52840 dongle as [Radio Co-Processor (RCP)](https://openthread.io/platforms/co-processor#radio_co-processor_rcp)
-  - Choose one of the following options:
-    - Option 1: PC running Ubuntu Desktop 23.04 OS
-    - Option 2 :Raspberry Pi 4B running Ubuntu Server 22.04 OS or Ubuntu Core 22, and an LED light
+  - PC running Ubuntu Desktop 23.04 OS
 - Machine B
   - nRF52840 dongle as RCP
   - PC running Ubuntu Desktop 23.04 OS
@@ -33,46 +31,42 @@ using the nRF52840 Dongle as the RCP. For details on setting up the RCP,
 please refer to [Build and flash RCP firmware on nRF52480 dongle](https://github.com/canonical/openthread-border-router-snap/wiki/Setup-OpenThread-Border-Router-with-nRF52840-Dongle#build-and-flash-rcp-firmware-on-nrf52480-dongle).
 
 #### 2. Run a Matter Thread Lighting App on Machine B
-There are two options to run a Matter Thread lighting application. 
 
-**Option 1**: Native Built Lighting App
-
-You can choose this option to build and run the [Matter Thread lighting app example](https://github.com/project-chip/connectedhomeip/tree/6b01cb977127eb8547ce66d5b627061dc2dd6c90/examples/lighting-app/linux) natively. With this option, you can observe the lighting status (on/off) from the logs.
+Build and run the [Matter Thread lighting app example](https://github.com/project-chip/connectedhomeip/tree/6b01cb977127eb8547ce66d5b627061dc2dd6c90/examples/lighting-app/linux) natively. By doing so, you will be able to observe the lighting status (on/off) from the logs later.
 
 To get started, follow these steps:
 
 - 1. Install the Matter SDK with a shallow clone for the Linux platform:
-```
+```bash
 git clone https://github.com/project-chip/connectedhomeip.git --depth=1
 cd connectedhomeip
 git checkout 6b01cb977127eb8547ce66d5b627061dc2dd6c90
 scripts/checkout_submodules.py --shallow --platform linux
 ```
 - 2. Build the lighting app:
-```
+```bash
 cd examples/lighting-app/linux
 gn gen out/debug
 ninja -C out/debug
 ```
 - 3. Run the lighting app with Thread feature enabled:
-```
+```bash
 ./out/debug/chip-lighting-app --thread
 ```
 
-**Option 2**: GPIO Commander Snap
-
-Alternatively, you can use this option to set up the Matter Thread lighting application by installing the Matter Pi GPIO Commander snap. 
-This turns your Raspberry Pi into a Matter Thread lighting device, allowing you to control the connected LED, turning it on or off.
-
-Follow the instructions for installing the matter-pi-gpio-commander snap, 
-provided at [Setup OpenThread Border Router with nRF52840 Dongle](https://github.com/canonical/matter-pi-gpio-commander/wiki/Setup-and-control-a-lighting-device#installation).
-
-TBA: Then, running the GPIO commander snap with Thread feature enabled.
-
 #### 3. Run OpenThread Border Router Agent on Machine B
-Check the [install and configure the OTBR snap](https://github.com/canonical/openthread-border-router-snap/wiki/Commission-and-control-a-Matter-Thread-device-via-the-OTBR-Snap#install-and-configure-the-otbr-snap) section
-to run OTBR agent. The lighting app communicates with OTBR agent via the dbus message bus. This is necessary to support the lighting app's Thread feature, as explained
+
+The lighting app communicates with OTBR agent via the dbus message bus. This is necessary to support the lighting app's Thread feature, as explained
 [here](https://github.com/project-chip/connectedhomeip/tree/6b01cb977127eb8547ce66d5b627061dc2dd6c90/examples/lighting-app/linux#commandline-arguments).
+
+Follow these steps to run OTBR agent:
+
+- 1. [Install and configure](https://github.com/canonical/openthread-border-router-snap#readme) OTBR snap
+- 2. Plugging the dongle
+- 3. Starting the agent (for details, refer [here](https://github.com/canonical/openthread-border-router-snap#run))
+```bash
+sudo snap start openthread-border-router.otbr-agent
+```
 
 > Note: Only the OTBR agent is required, and the GUI (openthread-border-router.otbr-web) is optional. The OTBR agent can be started by running the following command:
 > ```bash
@@ -102,7 +96,5 @@ If you are using **Option 2** (GPIO Commander Snap), upon successful execution, 
 - [Setup OpenThread Border Router with nRF52840 Dongle](https://github.com/canonical/openthread-border-router-snap/wiki/Setup-OpenThread-Border-Router-with-nRF52840-Dongle)
 - [Matter Linux Lighting Example](https://github.com/project-chip/connectedhomeip/tree/6b01cb977127eb8547ce66d5b627061dc2dd6c90/examples/lighting-app/linux#chip-linux-lighting-example)
 - https://github.com/project-chip/connectedhomeip/issues/29738
-
-
-
-
+- [OpenThread Border Router Snap](https://github.com/canonical/openthread-border-router-snap#readme)
+  
