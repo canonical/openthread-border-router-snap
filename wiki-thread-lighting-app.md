@@ -68,10 +68,7 @@ Follow these steps to run OTBR agent:
 sudo snap start openthread-border-router.otbr-agent
 ```
 
-> Note: Only the OTBR agent is required, and the GUI (openthread-border-router.otbr-web) is optional. The OTBR agent can be started by running the following command:
-> ```bash
-> sudo snap start openthread-border-router.otbr-agent
-> ```
+> Note: Only the OTBR agent is required, and the GUI (openthread-border-router.otbr-web) is optional.
 
 #### 4. Pair the Matter Thread Lighting Device via Chip Tool on Machine A
 Follow
@@ -82,15 +79,14 @@ to pair the Matter Thread lighting device with the Thread network.
 Read the "Control the Device" section on [Commission and control a Matter Thread device via the OTBR Snap](https://github.com/canonical/openthread-border-router-snap/wiki/Commission-and-control-a-Matter-Thread-device-via-the-OTBR-Snap#control-the-device) 
 to control the lighting device.
 
-If you are running the lighting app with **Option 1** (native lighting app), upon successful execution, the lighting status should be updated to "1/on" or "0/off" in the lighting app's logs:
+Upon successful execution, the lighting status should be updated to "1/on" or "0/off" in the lighting app's logs:
 ```bash
-$ sudo snap logs -f matter-pi-gpio-commander
+$ ./out/debug/chip-lighting-app --thread
 ...
 CHIP:DMG: Received command for Endpoint=1 Cluster=0x0000_0006 Command=0x0000_0002
 CHIP:ZCL: Toggle ep1 on/off from state 0 to 1
 ```
 
-If you are using **Option 2** (GPIO Commander Snap), upon successful execution, the connected LED on the Raspberry Pi will turn on or off.
 ### References
 - [Commission and control a Matter Thread device via the OTBR Snap](https://github.com/canonical/openthread-border-router-snap/wiki/Commission-and-control-a-Matter-Thread-device-via-the-OTBR-Snap)
 - [Setup OpenThread Border Router with nRF52840 Dongle](https://github.com/canonical/openthread-border-router-snap/wiki/Setup-OpenThread-Border-Router-with-nRF52840-Dongle)
