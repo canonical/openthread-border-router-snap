@@ -1,0 +1,21 @@
+#!/bin/bash -e
+
+TAG="$SNAP_NAME.default-configure"
+
+logger --tag=$TAG "Start"
+
+autostart="$(snapctl get autostart)"
+
+if [ -z "$autostart" ]; then
+    echo "'autostart' is unset."
+elif [ "$autostart" = true ]; then
+    echo "'autostart' is enabled ($autostart). Starting and enabling openthread-border-router snap."
+    snapctl start --enable openthread-border-router
+elif [ "$autostart" = false ]; then
+    echo "'autostart' is disabled ($autostart)."    
+else
+    echo $TAG "Invalid value for 'autostart': $autostart"
+    exit 1
+fi
+
+logger --tag=$TAG "End"
