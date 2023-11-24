@@ -7,15 +7,14 @@ logger --tag=$TAG "Start"
 autostart="$(snapctl get autostart)"
 
 if [ -z "$autostart" ]; then
-    echo "'autostart' is unset."
+    logger --tag=$TAG "'autostart' is unset."
 elif [ "$autostart" = true ]; then
-    echo "'autostart' is enabled ($autostart). Starting and enabling openthread-border-router snap."
+    logger --tag=$TAG "'autostart' is enabled ($autostart): starting and enabling openthread-border-router services."
     snapctl start --enable openthread-border-router
 elif [ "$autostart" = false ]; then
-    echo "'autostart' is disabled ($autostart)."    
+    logger --tag=$TAG "'autostart' is disabled ($autostart)."    
 else
-    echo $TAG "Invalid value for 'autostart': $autostart"
-    exit 1
+    logger --tag=$TAG --stderr "Invalid value for 'autostart': $autostart"
 fi
 
 logger --tag=$TAG "End"
