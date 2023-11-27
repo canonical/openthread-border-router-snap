@@ -8,6 +8,7 @@ logger --tag=$TAG "Start"
 snapctl set infra-if=wlan0
 snapctl set thread-if=wpan0
 snapctl set radio-url="spinel+hdlc+uart:///dev/ttyACM0"
+snapctl set autostart=false
 
 mkdir -p $SNAP_COMMON/thread-data
 
