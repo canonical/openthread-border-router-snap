@@ -35,6 +35,12 @@ thread-if  wpan0
 
 Change using `sudo snap set openthread-border-router key="value"`
 
+> **Note**  
+> By default, the services are disabled and not started.
+> They can be started and enabled as described [here](#run).
+> To start and enable via a [Gadget snap](https://snapcraft.io/docs/the-gadget-snap), set `autostart` to `true`.
+>
+
 ### Grant access to resources
 
 Connect interfaces to access desired resources:
@@ -63,7 +69,6 @@ sudo snap connect openthread-border-router:bluez
 > sudo snap connect openthread-border-router:avahi-control avahi:avahi-control
 > sudo snap connect openthread-border-router:bluez bluez:service
 > ```
-> 
 
 ## Run
 Start once:
