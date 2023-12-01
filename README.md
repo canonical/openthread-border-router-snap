@@ -36,13 +36,10 @@ thread-if  wpan0
 Change using `sudo snap set openthread-border-router key="value"`
 
 > **Note**  
-> By default, the services do not start. The snap provides an `autostart` option to change the default service startup behavior. 
-> This is only useful for changing the startup behavior when seeding the snap from a [Gadget](https://snapcraft.io/docs/the-gadget-snap) on [Ubuntu Core](https://ubuntu.com/core).
+> By default, the services are disabled and not started.
+> They can be started and enabled as described [here](#run).
+> To start and enable via a [Gadget snap](https://snapcraft.io/docs/the-gadget-snap), set `autostart` to `true`.
 >
-> For instance, to start and enable services by setting `autostart` to true:
-> ```
-> sudo snap set openthread-border-router autostart=true
-> ```
 
 ### Grant access to resources
 
