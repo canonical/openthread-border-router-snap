@@ -1,12 +1,33 @@
-#!/bin/bash
+#!/bin/bash -e
 
-TAG="$SNAP_NAME.configure"
+TAG="snap.$SNAP_NAME.hook.configure"
 
-logger --tag=$TAG "Start"
+logger --tag=$TAG "CONFIG DUMP"
+logger --tag=$TAG "infra-if=$(snapctl get infra-if)"
+logger --tag=$TAG "thread-if=$(snapctl get thread-if)"
+logger --tag=$TAG "radio-url=$(snapctl get radio-url)"
+logger --tag=$TAG "autostart=$(snapctl get autostart)"
+logger --tag=$TAG "source=$(snapctl get source)"
 
 if [ "$(snapctl get thread-if)" != "wpan0" ]; then
     logger --tag=$TAG --stderr "Thread interface name cannot be re-configured since 'wpan0' has been hardcoded in setup scripts as well as the DBus policy"
     exit 1
 fi
 
-logger --tag=$TAG "End"
+# This snap's services are disabled by default.
+# Enable and start the services based on snap config
+# Note that this is for controlling the startup from a Gadget and not a
+# replacement for 'snap start --enable <snap>'
+autostart="$(snapctl get autostart)"
+if [ "$autostart" == "true" ]; then
+    # Start only if no services are "active"
+    # This is to prevent re-running the oneshot setup service every time the
+    # configure hook is called.
+    if [ "$(snapctl services openthread-border-router | grep -cw active)" -eq 0 ]; then
+        logger --tag=$TAG "'autostart' is enabled: starting and enabling services."
+        snapctl start --enable openthread-border-router
+    fi
+elif [ "$autostart" != "false" ]; then
+    logger --tag=$TAG --stderr "Invalid value for 'autostart': $autostart"
+    exit 1
+fi

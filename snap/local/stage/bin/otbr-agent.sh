@@ -1,5 +1,13 @@
 #!/bin/bash -ex
 
+# for i in {1..1000}
+# do
+#    echo "Agent $i"
+#     sleep 10
+# done
+# exit 0
+
+
 export OTBR_NO_AUTO_ATTACH=0
 
 export INFRA_IF_NAME=$(snapctl get infra-if)
