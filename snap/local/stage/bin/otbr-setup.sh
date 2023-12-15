@@ -30,16 +30,6 @@
 
 echo "OTBR oneshot setup service"
 
-# echo "setup"
-# exit 0
-
-echo "CONFIG DUMP"
-echo "infra-if=$(snapctl get infra-if)"
-echo "thread-if=$(snapctl get thread-if)"
-echo "radio-url=$(snapctl get radio-url)"
-echo "autostart=$(snapctl get autostart)"
-echo "source=$(snapctl get source)"
-
 mkdir -p /run/snap.$SNAP_NAME
 
 # The operations performed here get reversed upon reboot and removal of the snap.
