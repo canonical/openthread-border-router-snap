@@ -3,6 +3,7 @@
 TAG="snap.$SNAP_NAME.hook.install"
 
 logger --tag=$TAG "Setting default snap options"
+# Redirect standard error to syslog. This is to capture the xtrace output.
 exec 2> >(logger --tag="$TAG")
 set -x
 snapctl set infra-if=wlan0
