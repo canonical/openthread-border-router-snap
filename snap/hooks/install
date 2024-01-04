@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-TAG="snap.$SNAP_NAME.hook.install"
+TAG="$SNAP_NAME.hook.install"
 
 logger --tag=$TAG "Setting default snap options"
 # Redirect standard error to syslog. This is to capture the xtrace output.
