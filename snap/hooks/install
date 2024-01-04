@@ -1,16 +1,15 @@
-#!/bin/bash -ex
+#!/bin/bash -e
 
-TAG="$SNAP_NAME.install"
+TAG="$SNAP_NAME.hook.install"
 
-logger --tag=$TAG "Start"
-
-# Set defaults
+logger --tag=$TAG "Setting default snap options"
+# Redirect standard error to syslog. This is to capture the xtrace output.
+exec 2> >(logger --tag="$TAG")
+set -x
 snapctl set infra-if=wlan0
 snapctl set thread-if=wpan0
 snapctl set radio-url="spinel+hdlc+uart:///dev/ttyACM0"
 snapctl set autostart=false
+set +x
 
 mkdir -p $SNAP_COMMON/thread-data
-
-logger --tag=$TAG "End"
-
