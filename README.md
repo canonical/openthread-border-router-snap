@@ -32,8 +32,7 @@ infra-if        wlan0
 radio-url       spinel+hdlc+uart:///dev/ttyACM0
 thread-if       wpan0
 
-interface-name  wpan0
-listen-address  "0.0.0.0"
+listen-address  "::"
 port            80
 ```
 
