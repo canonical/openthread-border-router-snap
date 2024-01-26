@@ -27,10 +27,14 @@ To build locally and install, refer [here](#build).
 View default configurations:
 ```bash
 $ sudo snap get openthread-border-router 
-Key        Value
-infra-if   wlan0
-radio-url  spinel+hdlc+uart:///dev/ttyACM0
-thread-if  wpan0
+Key             Value
+infra-if        wlan0
+radio-url       spinel+hdlc+uart:///dev/ttyACM0
+thread-if       wpan0
+
+interface-name  wpan0
+listen-address  "0.0.0.0"
+port            80
 ```
 
 Change using `sudo snap set openthread-border-router key="value"`
