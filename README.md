@@ -33,7 +33,9 @@ radio-url  spinel+hdlc+uart:///dev/ttyACM0
 thread-if  wpan0
 ```
 
-Change using `sudo snap set openthread-border-router key="value"`
+Change using `sudo snap set openthread-border-router key="value"`.
+
+For technical reasons, it is currently not allowed to change the value of `thread-if`; see [#17](https://github.com/canonical/openthread-border-router-snap/issues/17).
 
 > **Note**  
 > By default, the services are disabled and not started.
