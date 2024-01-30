@@ -68,7 +68,7 @@ apps:
   otbr-web:
     after: 
       - otbr-agent
-    command: bin/otbr-web
+    command: bin/otbr-web.sh
     daemon: simple
     install-mode: disable
     # restart-delay: 3s
