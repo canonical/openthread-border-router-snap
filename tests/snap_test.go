@@ -46,7 +46,7 @@ func TestDeviceOperations(t *testing.T) {
 	})
 
 	t.Run("Socket File", func(t *testing.T) {
-		waitForFileCreation(t, "/run/snap.openthread-border-router/openthread-wpan0.sock", 10*time.Second)
+		waitForFileCreation(t, "/run/snap.openthread-border-router/openthread-wpan0.sock", 10)
 	})
 
 	t.Run("Snap services status", func(t *testing.T) {
@@ -117,10 +117,8 @@ func setup() (teardown func(), err error) {
 	return
 }
 
-func waitForFileCreation(t *testing.T, filePath string, timeout time.Duration) {
+func waitForFileCreation(t *testing.T, filePath string, maxRetry int) {
 	t.Helper()
-
-	const maxRetry = 10
 
 	for i := 1; i <= maxRetry; i++ {
 		time.Sleep(1 * time.Second)
