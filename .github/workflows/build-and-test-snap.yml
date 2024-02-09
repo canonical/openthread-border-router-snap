@@ -57,7 +57,6 @@ jobs:
           SKIP_TEARDOWN_REMOVAL: true
           LOCAL_SERVICE_SNAP: ../${{ needs.build.outputs.snap }}
         run: |
-          ip a
           go test -failfast -p 1 -timeout 30m -v
 
       - name: Upload snap logs

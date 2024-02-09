@@ -152,6 +152,9 @@ func setup() (teardown func(), err error) {
 	utils.Exec(nil, "sudo cp ot-rcp-simulator-thread-reference-20230119-amd64 /var/snap/openthread-border-router/common/")
 	utils.SnapSet(nil, otbrSnap, "radio-url", "'spinel+hdlc+forkpty:///var/snap/openthread-border-router/common/ot-rcp-simulator-thread-reference-20230119-amd64?forkpty-arg=1'")
 
+	// set GitHub Action network interface
+	utils.SnapSet(nil, otbrSnap, "infra-if", "eth0")
+
 	utils.SnapStart(nil, otbrSnap)
 
 	return
