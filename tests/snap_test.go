@@ -17,12 +17,12 @@ const (
 	otbrAgentApp = "openthread-border-router.otbr-agent"
 	otbrWebApp   = "openthread-border-router.otbr-web"
 
-	infraInterface = "INFRA_IF"
+	infraInterfaceEnv = "INFRA_IF"
 )
 
 var (
-	start          = time.Now()
-	InfraInterface = "wlan0"
+	start                 = time.Now()
+	defaultInfraInterface = "wlan0"
 )
 
 func TestMain(m *testing.M) {
@@ -116,7 +116,6 @@ func setup() (teardown func(), err error) {
 	utils.SnapRemove(nil, otbrSnap)
 
 	log.Println("[SETUP]")
-	start := time.Now()
 
 	teardown = func() {
 		log.Println("[TEARDOWN]")
@@ -151,10 +150,12 @@ func setup() (teardown func(), err error) {
 	utils.SnapSet(nil, otbrSnap, "radio-url", "'spinel+hdlc+forkpty:///var/snap/openthread-border-router/common/ot-rcp-simulator-thread-reference-20230119-amd64?forkpty-arg=1'")
 
 	// get and set infrastructure interface
-	if v := os.Getenv(infraInterface); v != "" {
-		InfraInterface = v
+	if v := os.Getenv(infraInterfaceEnv); v != "" {
+		infraInterface := v
+		utils.SnapSet(nil, otbrSnap, "infra-if", infraInterface)
+	} else {
+		utils.SnapSet(nil, otbrSnap, "infra-if", defaultInfraInterface)
 	}
-	utils.SnapSet(nil, otbrSnap, "infra-if", InfraInterface)
 
 	utils.SnapStart(nil, otbrSnap)
 
