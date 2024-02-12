@@ -1,4 +1,4 @@
-module chip-tool-snap-tests
+module openthread-border-router-snap-tests
 
 go 1.21.6
 

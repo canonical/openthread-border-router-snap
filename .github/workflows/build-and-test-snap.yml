@@ -1,4 +1,4 @@
-name: Snap Builder
+name: Build & Test
 
 on:
   push:
@@ -56,9 +56,10 @@ jobs:
         env:
           SKIP_TEARDOWN_REMOVAL: true
           LOCAL_SERVICE_SNAP: ../${{ needs.build.outputs.snap }}
+          INFRA_IF: "eth0"
         run: |
           # Override the infrastructure interface for GitHub Action
-          INFRA_IF="eth0" go test -failfast -p 1 -timeout 30m -v
+          go test -failfast -p 1 -timeout 30m -v
 
       - name: Upload snap logs
         if: always() 
