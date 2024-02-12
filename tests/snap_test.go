@@ -11,13 +11,18 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var start = time.Now()
-
 const (
 	otbrSnap     = "openthread-border-router"
 	otbrSetupApp = "openthread-border-router.otbr-setup"
 	otbrAgentApp = "openthread-border-router.otbr-agent"
 	otbrWebApp   = "openthread-border-router.otbr-web"
+
+	infraInterface = "INFRA_IF"
+)
+
+var (
+	start          = time.Now()
+	InfraInterface = "wlan0"
 )
 
 func TestMain(m *testing.M) {
@@ -152,8 +157,11 @@ func setup() (teardown func(), err error) {
 	utils.Exec(nil, "sudo cp ot-rcp-simulator-thread-reference-20230119-amd64 /var/snap/openthread-border-router/common/")
 	utils.SnapSet(nil, otbrSnap, "radio-url", "'spinel+hdlc+forkpty:///var/snap/openthread-border-router/common/ot-rcp-simulator-thread-reference-20230119-amd64?forkpty-arg=1'")
 
-	// set GitHub Action network interface
-	utils.SnapSet(nil, otbrSnap, "infra-if", "eth0")
+	// get and set infrastructure interface
+	if v := os.Getenv(infraInterface); v != "" {
+		InfraInterface = v
+	}
+	utils.SnapSet(nil, otbrSnap, "infra-if", InfraInterface)
 
 	utils.SnapStart(nil, otbrSnap)
 

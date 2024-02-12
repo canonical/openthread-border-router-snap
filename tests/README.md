@@ -9,6 +9,16 @@ where:
 - `-failfast` makes the test stop after first failure
 - `-count 1` is to avoid Go test caching for example when testing a rebuilt snap
 
+# Override behavior
+Use environment variables, as defined in [utils/env.go](https://github.com/canonical/matter-snap-testing/blob/main/utils/env.go).
+
+For the infrastructure interface name, the default value is "wlan0". 
+To override it during the Go test, run:
+
+```bash
+INFRA_IF="eth0" go test -v -failfast -count 1
+```
+
 # Build a Radio Co-Processor (RCP) simulator for testing
 
 In this test, a pre-built RCP simulator will be utilized. 
