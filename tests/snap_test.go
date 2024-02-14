@@ -3,6 +3,7 @@ package tests
 import (
 	"log"
 	"os"
+	"os/exec"
 	"strings"
 	"testing"
 	"time"
@@ -17,13 +18,14 @@ const (
 	otbrAgentApp = "openthread-border-router.otbr-agent"
 	otbrWebApp   = "openthread-border-router.otbr-web"
 
-	infraInterfaceEnv = "INFRA_IF"
+	defaultInfraInterfaceValue = "wlan0"
+	infraInterfaceKey          = "infra-if"
+	infraInterfaceEnv          = "INFRA_IF"
+
+	defaultWebGUIPort = "80"
 )
 
-var (
-	start                 = time.Now()
-	defaultInfraInterface = "wlan0"
-)
+var infraInterfaceValue = defaultInfraInterfaceValue
 
 func TestMain(m *testing.M) {
 	teardown, err := setup()
@@ -37,66 +39,195 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
+// TestSetup verifies the configuration setup of OTBR based on otbr-setup.sh script:
+// https://github.com/canonical/openthread-border-router-snap/blob/main/snap/local/stage/bin/otbr-setup.sh
 func TestSetup(t *testing.T) {
-	// TestSetup verifies the configuration setup of OTBR based on otbr-setup.sh script:
-	// https://github.com/canonical/openthread-border-router-snap/blob/main/snap/local/stage/bin/otbr-setup.sh
+	infraInterfaceFromSnap, _, _ := utils.Exec(t, "sudo snap get openthread-border-router "+infraInterfaceKey)
+	trimmedInfraInterface := strings.TrimSpace(infraInterfaceFromSnap)
 
-	INFRA_IF, _, _ := utils.Exec(t, "sudo snap get openthread-border-router infra-if")
-	t.Run("firewall", func(t *testing.T) {
+	// Start clean
+	utils.SnapStop(t, otbrSnap)
+
+	t.Cleanup(func() {
+		utils.SnapStop(t, otbrSnap)
+	})
+
+	utils.SnapStart(nil, otbrSnap)
+	t.Run("Firewall rule", func(t *testing.T) {
 		forwardRules, _, _ := utils.Exec(t, "sudo iptables -S FORWARD | grep \"comment OTBR\"")
 		require.NotEmpty(t, forwardRules)
 	})
 
 	t.Run("IP forwarding", func(t *testing.T) {
-		ipv6_forwarding, _, _ := utils.Exec(t, "sudo sysctl net.ipv6.conf.all.forwarding")
-		require.Equal(t, "net.ipv6.conf.all.forwarding = 1\n", ipv6_forwarding)
-		ipv4_forwarding, _, _ := utils.Exec(t, "sudo sysctl net.ipv4.ip_forward")
-		require.Equal(t, "net.ipv4.ip_forward = 1\n", ipv4_forwarding)
+		ipv6Forwarding, _, _ := utils.Exec(t, "sudo sysctl net.ipv6.conf.all.forwarding")
+		require.Equal(t, "net.ipv6.conf.all.forwarding = 1\n", ipv6Forwarding)
+		ipv4Forwarding, _, _ := utils.Exec(t, "sudo sysctl net.ipv4.ip_forward")
+		require.Equal(t, "net.ipv4.ip_forward = 1\n", ipv4Forwarding)
 	})
 
 	t.Run("RT tables for backbone router", func(t *testing.T) {
-		socket_buffer_size, _, _ := utils.Exec(t, "sudo sysctl net.core.optmem_max")
-		require.Equal(t, "net.core.optmem_max = 65536\n", socket_buffer_size)
+		socketBufferSize, _, _ := utils.Exec(t, "sudo sysctl net.core.optmem_max")
+		require.Equal(t, "net.core.optmem_max = 65536\n", socketBufferSize)
 	})
 
 	t.Run("Random fwmark bits", func(t *testing.T) {
-		mangle_table_prerouting_chain, _, _ := utils.Exec(t, "sudo iptables -t mangle -L PREROUTING -n -v | grep OTBR")
-		require.NotEmpty(t, mangle_table_prerouting_chain)
-		nat_table_postrouting_chain, _, _ := utils.Exec(t, "sudo iptables -t nat -L POSTROUTING -n -v | grep OTBR")
-		require.NotEmpty(t, nat_table_postrouting_chain)
+		mangleTablePreroutingChain, _, _ := utils.Exec(t, "sudo iptables -t mangle -L PREROUTING -n -v | grep OTBR")
+		require.NotEmpty(t, mangleTablePreroutingChain)
+		natTablePostroutingChain, _, _ := utils.Exec(t, "sudo iptables -t nat -L POSTROUTING -n -v | grep OTBR")
+		require.NotEmpty(t, natTablePostroutingChain)
 	})
 
-	t.Run("Firewall rule setup for INFRA_IF", func(t *testing.T) {
-		forward_rule, _, _ := utils.Exec(t, "sudo iptables -t filter -L FORWARD -n -v | grep OTBR | grep "+INFRA_IF)
-		require.NotEmpty(t, forward_rule)
+	t.Run("Firewall rule setup for Infrastructure interface", func(t *testing.T) {
+		forwardRule, _, _ := utils.Exec(t, "sudo iptables -t filter -L FORWARD -n -v | grep OTBR | grep "+trimmedInfraInterface)
+		require.NotEmpty(t, forwardRule)
 	})
 
 	t.Run("Border routing", func(t *testing.T) {
-		trimmedInfraIF := strings.TrimSpace(INFRA_IF)
-		accept_ra, _, _ := utils.Exec(t, "sudo sysctl net.ipv6.conf."+trimmedInfraIF+".accept_ra")
-		require.Equal(t, "net.ipv6.conf."+trimmedInfraIF+".accept_ra = 2\n", accept_ra)
-		accept_ra_rt_info_max_plen, _, _ := utils.Exec(t, "sudo sysctl net.ipv6.conf."+trimmedInfraIF+".accept_ra_rt_info_max_plen")
-		require.Equal(t, "net.ipv6.conf."+trimmedInfraIF+".accept_ra_rt_info_max_plen = 64\n", accept_ra_rt_info_max_plen)
+		acceptRA, _, _ := utils.Exec(t, "sudo sysctl net.ipv6.conf."+trimmedInfraInterface+".accept_ra")
+		require.Equal(t, "net.ipv6.conf."+trimmedInfraInterface+".accept_ra = 2\n", acceptRA)
+		acceptRARTInfoMaxPlen, _, _ := utils.Exec(t, "sudo sysctl net.ipv6.conf."+trimmedInfraInterface+".accept_ra_rt_info_max_plen")
+		require.Equal(t, "net.ipv6.conf."+trimmedInfraInterface+".accept_ra_rt_info_max_plen = 64\n", acceptRARTInfoMaxPlen)
 	})
 }
 
 func TestSocketFile(t *testing.T) {
+	// Start clean
+	utils.SnapStop(t, otbrSnap)
+
+	t.Cleanup(func() {
+		utils.SnapStop(t, otbrSnap)
+	})
+
+	utils.SnapStart(nil, otbrSnap)
 	waitForFileCreation(t, "/run/snap.openthread-border-router/openthread-wpan0.sock", 10)
 }
 
 func TestSnapServicesStatus(t *testing.T) {
-	// oneshot service
+	// Start clean
+	utils.SnapStop(t, otbrSnap)
+
+	t.Cleanup(func() {
+		utils.SnapStop(t, otbrSnap)
+	})
+
+	utils.SnapStart(nil, otbrSnap)
+
+	// Oneshot service
 	require.False(t, utils.SnapServicesActive(t, otbrSetupApp))
 
-	// actice services
+	// Actice services
 	require.True(t, utils.SnapServicesActive(t, otbrWebApp))
 	require.True(t, utils.SnapServicesActive(t, otbrAgentApp))
 }
 
+func TestConfig(t *testing.T) {
+	serviceWaitTimeout := 10
+
+	// Start clean
+	utils.SnapStop(t, otbrSnap)
+
+	t.Cleanup(func() {
+		utils.SnapStop(t, otbrSnap)
+	})
+
+	t.Run("Set infra-if", func(t *testing.T) {
+		configKey := infraInterfaceKey
+		configValue := "wpan1"
+		defaultConfigValue := infraInterfaceValue
+		expectedLog := infraInterfaceEnv + "=" + configValue
+		checkSnapOptions(t, configKey, configValue, defaultConfigValue, otbrSetupApp, expectedLog)
+	})
+	t.Run("Set radio-url", func(t *testing.T) {
+		configKey := "radio-url"
+		configValue := "spinel+hdlc+uart:///dev/ttyACM1"
+		defaultConfigValue := "spinel+hdlc+uart:///dev/ttyACM0"
+		expectedLog := "RADIO_URL=" + configValue
+		checkSnapOptions(t, configKey, configValue, defaultConfigValue, otbrAgentApp, expectedLog)
+	})
+
+	t.Run("Set invalid thread interface", func(t *testing.T) {
+		configKey := "thread-if"
+		defaultConfigValue := "wpan0"
+		invalidConfigValue := "wpan1"
+
+		t.Cleanup(func() {
+			utils.SnapSet(t, otbrSnap, configKey, defaultConfigValue)
+			utils.SnapStop(t, otbrSnap)
+		})
+
+		command := "sudo snap set openthread-border-router thread-if=" + invalidConfigValue
+		output, err := exec.Command("/bin/bash", "-c", command).CombinedOutput()
+		t.Logf("[exec] %s", command)
+
+		require.NotEmpty(t, output)
+		require.Error(t, err, "Expected an error while setting an invalid thread interface")
+	})
+
+	t.Run("Set webgui-listen-address", func(t *testing.T) {
+		configKey := "webgui-listen-address"
+		configValue := "192.168.178.1"
+		defaultConfigValue := "::"
+
+		t.Cleanup(func() {
+			utils.SnapSet(t, otbrSnap, configKey, defaultConfigValue)
+			utils.SnapStop(t, otbrSnap)
+		})
+
+		utils.SnapSet(t, otbrSnap, configKey, configValue)
+		utils.SnapStart(t, otbrSnap)
+
+		stdout, _, _ := utils.Exec(t, "curl "+configValue+":"+defaultWebGUIPort)
+		require.NotEmpty(t, stdout)
+	})
+	t.Run("Set webgui-port", func(t *testing.T) {
+		configKey := "webgui-port"
+		configValue := "90"
+		defaultConfigValue := defaultWebGUIPort
+
+		t.Cleanup(func() {
+			utils.SnapSet(t, otbrSnap, configKey, defaultConfigValue)
+			utils.SnapStop(t, otbrSnap)
+		})
+
+		utils.RequirePortAvailable(t, configValue)
+		utils.SnapSet(t, otbrSnap, configKey, configValue)
+		utils.SnapStart(nil, otbrSnap)
+		utils.WaitServiceOnline(t, serviceWaitTimeout, configValue)
+
+		stdout, _, _ := utils.Exec(t, "curl localhost:"+configValue)
+		require.NotEmpty(t, stdout)
+	})
+
+	t.Run("Set autostart", func(t *testing.T) {
+		t.Cleanup(func() {
+			utils.SnapStop(t, otbrSnap)
+		})
+
+		require.False(t, utils.SnapServicesEnabled(t, otbrSnap))
+		require.False(t, utils.SnapServicesActive(t, otbrSnap))
+
+		utils.SnapSet(t, otbrSnap, "autostart", "true")
+		require.True(t, utils.SnapServicesEnabled(t, otbrAgentApp))
+		require.True(t, utils.SnapServicesActive(t, otbrAgentApp))
+		require.True(t, utils.SnapServicesEnabled(t, otbrWebApp))
+		require.True(t, utils.SnapServicesActive(t, otbrWebApp))
+		require.True(t, utils.SnapServicesEnabled(t, otbrSetupApp))
+		require.False(t, utils.SnapServicesActive(t, otbrSetupApp))
+	})
+}
+
 func TestThreadNetworkFormation(t *testing.T) {
+	// Start clean
+	utils.SnapStop(t, otbrSnap)
+
 	t.Cleanup(func() {
 		utils.Exec(t, "sudo openthread-border-router.ot-ctl thread stop")
+		utils.SnapStop(t, otbrSnap)
 	})
+
+	start := time.Now()
+	utils.SnapStart(nil, otbrSnap)
+
 	utils.Exec(t, "sudo openthread-border-router.ot-ctl dataset init new")
 	utils.Exec(t, "sudo openthread-border-router.ot-ctl dataset commit active")
 	utils.Exec(t, "sudo openthread-border-router.ot-ctl ifconfig up")
@@ -107,7 +238,6 @@ func TestThreadNetworkFormation(t *testing.T) {
 	state, _, _ := utils.Exec(t, "sudo openthread-border-router.ot-ctl state | head -n 1")
 	state = strings.TrimRight(state, "\n")
 	require.Equal(t, "leader", state)
-
 }
 
 func setup() (teardown func(), err error) {
@@ -115,6 +245,7 @@ func setup() (teardown func(), err error) {
 	log.Println("[CLEAN]")
 	utils.SnapRemove(nil, otbrSnap)
 
+	start := time.Now()
 	log.Println("[SETUP]")
 
 	teardown = func() {
@@ -137,7 +268,7 @@ func setup() (teardown func(), err error) {
 		return
 	}
 
-	// connect interfaces
+	// Connect interfaces
 	utils.SnapConnect(nil, otbrSnap+":avahi-control", "")
 	utils.SnapConnect(nil, otbrSnap+":firewall-control", "")
 	utils.SnapConnect(nil, otbrSnap+":raw-usb", "")
@@ -145,19 +276,17 @@ func setup() (teardown func(), err error) {
 	utils.SnapConnect(nil, otbrSnap+":bluetooth-control", "")
 	utils.SnapConnect(nil, otbrSnap+":bluez", "")
 
-	// copy and set simulated RCP
+	// Copy and set simulated RCP
 	utils.Exec(nil, "sudo cp ot-rcp-simulator-thread-reference-20230119-amd64 /var/snap/openthread-border-router/common/")
 	utils.SnapSet(nil, otbrSnap, "radio-url", "'spinel+hdlc+forkpty:///var/snap/openthread-border-router/common/ot-rcp-simulator-thread-reference-20230119-amd64?forkpty-arg=1'")
 
-	// get and set infrastructure interface
+	// Get and set infrastructure interface
 	if v := os.Getenv(infraInterfaceEnv); v != "" {
-		infraInterface := v
-		utils.SnapSet(nil, otbrSnap, "infra-if", infraInterface)
+		infraInterfaceValue = v
+		utils.SnapSet(nil, otbrSnap, infraInterfaceKey, infraInterfaceValue)
 	} else {
-		utils.SnapSet(nil, otbrSnap, "infra-if", defaultInfraInterface)
+		utils.SnapSet(nil, otbrSnap, infraInterfaceKey, defaultInfraInterfaceValue)
 	}
-
-	utils.SnapStart(nil, otbrSnap)
 
 	return
 }
@@ -181,13 +310,21 @@ func waitForFileCreation(t *testing.T, filePath string, maxRetry int) {
 	t.Fatalf("Timeout: File not created after %d retries.", maxRetry)
 }
 
-func readLogFile(t *testing.T, filePath string) (string, error) {
+func checkSnapOptions(t *testing.T, configKey, configValue, defaultConfigValue, otbrService, expectedLog string) {
 	t.Helper()
 
-	text, err := os.ReadFile(filePath)
+	// Start clean
+	utils.SnapStop(t, otbrSnap)
+	start := time.Now()
 
-	if err != nil {
-		return "", err
-	}
-	return string(text), nil
+	t.Cleanup(func() {
+		utils.SnapSet(t, otbrSnap, configKey, defaultConfigValue)
+		utils.SnapStop(t, otbrSnap)
+	})
+
+	utils.SnapSet(t, otbrSnap, configKey, configValue)
+	command := "sudo snap start openthread-border-router"
+	_, _ = exec.Command("/bin/bash", "-c", command).CombinedOutput()
+	t.Logf("[exec] %s", command)
+	utils.WaitForLogMessage(t, otbrService, expectedLog, start)
 }
