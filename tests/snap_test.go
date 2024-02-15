@@ -165,7 +165,7 @@ func TestConfig(t *testing.T) {
 
 	t.Run("Set webgui-listen-address", func(t *testing.T) {
 		configKey := "webgui-listen-address"
-		configValue := "192.168.178.1"
+		configValue := "127.0.0.1"
 		defaultConfigValue := "::"
 
 		t.Cleanup(func() {
@@ -173,6 +173,7 @@ func TestConfig(t *testing.T) {
 			utils.SnapStop(t, otbrSnap)
 		})
 
+		utils.RequirePortAvailable(t, defaultWebGUIPort)
 		utils.SnapSet(t, otbrSnap, configKey, configValue)
 		utils.SnapStart(t, otbrSnap)
 
