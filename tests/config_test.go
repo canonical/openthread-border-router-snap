@@ -65,9 +65,7 @@ func TestConfig(t *testing.T) {
 		utils.RequirePortAvailable(t, defaultWebGUIPort)
 		utils.SnapSet(t, otbrSnap, configKey, configValue)
 		utils.SnapStart(t, otbrSnap)
-
-		stdout, _, _ := utils.Exec(t, "curl "+configValue+":"+defaultWebGUIPort)
-		require.NotEmpty(t, stdout)
+		utils.WaitServiceOnline(t, 10, defaultWebGUIPort)
 	})
 	t.Run("Set webgui-port", func(t *testing.T) {
 		configKey := "webgui-port"
@@ -84,8 +82,7 @@ func TestConfig(t *testing.T) {
 		utils.SnapStart(nil, otbrSnap)
 		utils.WaitServiceOnline(t, serviceWaitTimeout, configValue)
 
-		stdout, _, _ := utils.Exec(t, "curl localhost:"+configValue)
-		require.NotEmpty(t, stdout)
+		utils.WaitServiceOnline(t, 10, configValue)
 	})
 
 	t.Run("Set autostart", func(t *testing.T) {
