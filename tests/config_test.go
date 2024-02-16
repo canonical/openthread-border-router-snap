@@ -117,6 +117,8 @@ func testSettingSnapOption(t *testing.T, configKey, configValue, defaultConfigVa
 
 	utils.SnapSet(t, otbrSnap, configKey, configValue)
 	command := "sudo snap start openthread-border-router"
+	// The error below is not handled as intended
+	// because the configuration value passed here is invalid for the intended purpose
 	_, _ = exec.Command("/bin/bash", "-c", command).CombinedOutput()
 	t.Logf("[exec] %s", command)
 	utils.WaitForLogMessage(t, otbrService, expectedLog, start)
