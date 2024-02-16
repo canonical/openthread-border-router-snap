@@ -49,14 +49,14 @@ source $SNAP/bin/_initrc_install
 ###############################################################################
 echo "Setup IP forwarding"
 # Upstream equivalent:
-# https://github.com/openthread/ot-br-posix/blob/thread-reference-20230119/script/_ipforward
+# https://github.com/openthread/ot-br-posix/blob/thread-reference-20230710/script/_ipforward
 sysctl -w net.ipv6.conf.all.forwarding=1
 sysctl -w net.ipv4.ip_forward=1
 
 ###############################################################################
 echo "Setup RT Tables for the Backbone Router"
 # Upstream equivalent:
-# https://github.com/openthread/ot-br-posix/blob/thread-reference-20230119/script/_rt_tables
+# https://github.com/openthread/ot-br-posix/blob/thread-reference-20230710/script/_rt_tables
 # Skip setting "88 openthread" routing table mapping:
 # https://github.com/canonical/openthread-border-router-snap/issues/14
 sysctl net.core.optmem_max=65536
@@ -66,7 +66,7 @@ echo "Setup NAT44"
 # The nat44_install function in scripts/_nat64 creates a service file and sets 
 # firewall rules inside. We are only interested in the firewall rules.
 # Upstream source: 
-# https://github.com/openthread/ot-br-posix/blob/thread-reference-20230119/script/_nat64
+# https://github.com/openthread/ot-br-posix/blob/thread-reference-20230710/script/_nat64
 echo "Set random fwmark bits"
 iptables -t mangle -A PREROUTING -i $THREAD_IF -j MARK --set-mark 0x1001 -m comment --comment "OTBR"
 iptables -t nat -A POSTROUTING -m mark --mark 0x1001 -j MASQUERADE -m comment --comment "OTBR"
@@ -78,7 +78,7 @@ iptables -t filter -A FORWARD -i $INFRA_IF -j ACCEPT -m comment --comment "OTBR"
 ###############################################################################
 echo "Setup Border Routing"
 # Upstream equivalent:
-# https://github.com/openthread/ot-br-posix/blob/thread-reference-20230119/script/_border_routing
+# https://github.com/openthread/ot-br-posix/blob/thread-reference-20230710/script/_border_routing
 sysctl -w net.ipv6.conf.$INFRA_IF.accept_ra=2
 sysctl -w net.ipv6.conf.$INFRA_IF.accept_ra_rt_info_max_plen=64
 

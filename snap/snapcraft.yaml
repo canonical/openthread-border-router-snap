@@ -106,7 +106,7 @@ parts:
     after:
       - build-bin
     source: https://github.com/openthread/ot-br-posix.git
-    source-tag: thread-reference-20230119
+    source-tag: thread-reference-20230710
     source-depth: 1
     plugin: nil
     build-packages: 
@@ -144,6 +144,7 @@ parts:
       - dhcpcd5
       - libatm1
       - libjsoncpp-dev
+      - libprotobuf-lite23
     override-build: |
       craftctl set version="$(git describe --tags)+snap"
 
