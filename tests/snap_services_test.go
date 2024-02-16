@@ -20,7 +20,7 @@ func TestSnapServicesStatus(t *testing.T) {
 	// Oneshot service
 	require.False(t, utils.SnapServicesActive(t, otbrSetupApp))
 
-	// Actice services
+	// Active services
 	require.True(t, utils.SnapServicesActive(t, otbrWebApp))
 	require.True(t, utils.SnapServicesActive(t, otbrAgentApp))
 }

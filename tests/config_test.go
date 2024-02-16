@@ -24,14 +24,14 @@ func TestConfig(t *testing.T) {
 		configValue := "wpan1"
 		defaultConfigValue := infraInterfaceValue
 		expectedLog := infraInterfaceEnv + "=" + configValue
-		checkSnapOption(t, configKey, configValue, defaultConfigValue, otbrSetupApp, expectedLog)
+		testSettingSnapOption(t, configKey, configValue, defaultConfigValue, otbrSetupApp, expectedLog)
 	})
 	t.Run("Set radio-url", func(t *testing.T) {
 		configKey := "radio-url"
 		configValue := "spinel+hdlc+uart:///dev/ttyACM1"
 		defaultConfigValue := defaultRadioURL
 		expectedLog := "RADIO_URL=" + configValue
-		checkSnapOption(t, configKey, configValue, defaultConfigValue, otbrAgentApp, expectedLog)
+		testSettingSnapOption(t, configKey, configValue, defaultConfigValue, otbrAgentApp, expectedLog)
 	})
 
 	t.Run("Set invalid thread interface", func(t *testing.T) {
@@ -103,7 +103,7 @@ func TestConfig(t *testing.T) {
 	})
 }
 
-func checkSnapOption(t *testing.T, configKey, configValue, defaultConfigValue, otbrService, expectedLog string) {
+func testSettingSnapOption(t *testing.T, configKey, configValue, defaultConfigValue, otbrService, expectedLog string) {
 	t.Helper()
 
 	// Start clean
