@@ -6,3 +6,5 @@ prime/*
 stage/*
 snap/.snapcraft/*
 squashfs-root/
+
+*.log
