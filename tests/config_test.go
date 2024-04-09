@@ -1,7 +1,9 @@
 package tests
 
 import (
+	"fmt"
 	"os/exec"
+	"strings"
 	"testing"
 	"time"
 
@@ -108,7 +110,6 @@ func testSettingSnapOption(t *testing.T, configKey, configValue, defaultConfigVa
 
 	// Start clean
 	utils.SnapStop(t, otbrSnap)
-	start := time.Now()
 
 	t.Cleanup(func() {
 		utils.SnapSet(t, otbrSnap, configKey, defaultConfigValue)
@@ -116,10 +117,32 @@ func testSettingSnapOption(t *testing.T, configKey, configValue, defaultConfigVa
 	})
 
 	utils.SnapSet(t, otbrSnap, configKey, configValue)
+
 	command := "sudo snap start openthread-border-router"
 	// The error below is not handled as intended
 	// because the configuration value passed here is invalid for the intended purpose
 	_, _ = exec.Command("/bin/bash", "-c", command).CombinedOutput()
 	t.Logf("[exec] %s", command)
-	utils.WaitForLogMessage(t, otbrService, expectedLog, start)
+
+	snapLogLines := 200
+	maxRetry := 10
+	retryInterval := 1 * time.Second
+	waitForApplicationLogMessage(t, otbrService, expectedLog, snapLogLines, maxRetry, retryInterval)
+}
+
+func waitForApplicationLogMessage(t *testing.T, application, expectedLog string, snapLogLines, maxRetry int, retryInterval time.Duration) {
+	t.Helper()
+
+	for i := 1; i <= maxRetry; i++ {
+		time.Sleep(retryInterval)
+		t.Logf("Retry %d/%d: Waiting for expected content in application logs: %s", i, maxRetry, expectedLog)
+
+		logs, _, _ := utils.Exec(t, fmt.Sprintf("sudo snap logs -n=%d \"%s\"", snapLogLines, application))
+		if strings.Contains(logs, expectedLog) {
+			t.Logf("Found expected content in application logs: %s", expectedLog)
+			return
+		}
+	}
+
+	t.Fatalf("Time out: reached max %d retries.", maxRetry)
 }
