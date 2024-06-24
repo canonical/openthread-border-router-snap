@@ -6,4 +6,7 @@ TAG="$SNAP_NAME.hook.remove"
 logger --tag=$TAG "Remove the firewall config"
 $SNAP/bin/script/otbr-firewall stop
 
+logger --tag=$TAG "Remove the socket directory"
+# This is created during the OTBR setup
+rm -r /run/snap.$SNAP_NAME
 
