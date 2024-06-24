@@ -30,6 +30,8 @@
 
 echo "OTBR oneshot setup service"
 
+# Create directory for the OpenThread Posix Config Domain Socket
+# This path is set with a build flag when building OTBR
 mkdir -p /run/snap.$SNAP_NAME
 
 # The operations performed here get reversed upon reboot and removal of the snap.

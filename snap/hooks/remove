@@ -1,16 +1,12 @@
 #!/bin/bash -e
 
-TAG="$SNAP_NAME.remove"
-
-logger --tag=$TAG "Start"
-
+TAG="$SNAP_NAME.hook.remove"
 
 ###############################################################################
-logger --tag=$TAG "Remove the firewall config"
+logger --tag=$TAG "Removing the firewall config"
 $SNAP/bin/script/otbr-firewall stop
 
+logger --tag=$TAG "Removing the socket directory"
+# This directory gets created whenever OTBR setup runs
+rm -fr /run/snap.$SNAP_NAME
 
-
-rm -f /run/snap.$SNAP_NAME
-
-logger --tag=$TAG "End"

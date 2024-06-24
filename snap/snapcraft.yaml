@@ -29,9 +29,10 @@ layout:
   /var/lib/thread:
     symlink: $SNAP_COMMON/thread-data
 
-# hooks:
-#     install:
-#         plugs: [network]
+hooks:
+    remove:
+        plugs:
+          - firewall-control
 
 apps:
   otbr-setup:
