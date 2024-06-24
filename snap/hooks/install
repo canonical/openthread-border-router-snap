@@ -15,6 +15,5 @@ snapctl set webgui-port=80
 set +x
 
 THREAD_DATA=$SNAP_COMMON/thread-data
-
-logger --tag=$TAG "Create directory for thread data: $THREAD_DATA"
+logger --tag=$TAG "Creating directory for thread data: $THREAD_DATA"
 mkdir -p $THREAD_DATA
