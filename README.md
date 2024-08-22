@@ -1,4 +1,5 @@
 # OpenThread Border Router snap
+
 [![openthread-border-router](https://snapcraft.io/openthread-border-router/badge.svg)](https://snapcraft.io/openthread-border-router)
 
 OpenThread Border Router (OTBR) is a Thread border router for POSIX-based platforms.
@@ -13,24 +14,25 @@ For issues related to this snap, refer [here](https://github.com/canonical/opent
 
 Usage instructions are available **[here](https://canonical-matter.readthedocs-hosted.com/en/latest/how-to/otbr-on-ubuntu/)**.
 
-
 ## Build
 
 Build locally for the same architecture as the host:
+
 ```bash
 snapcraft -v
 ```
 
 Build remotely for all supported architectures:
-```
+
+```bash
 snapcraft remote-build
 ```
 
 Given the snap package file with `.snap` extension, install:
+
 ```bash
 sudo snap install --dangerous *.snap
 ```
-
 
 ## Advanced Usage
 
