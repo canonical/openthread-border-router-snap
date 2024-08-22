@@ -44,9 +44,6 @@ By default, the services are disabled and not started.
 They can be started and enabled as described [here](https://canonical-matter.readthedocs-hosted.com/en/latest/how-to/otbr-on-ubuntu/#start-otbr).
 To start and enable via a [Gadget snap](https://snapcraft.io/docs/the-gadget-snap), set `autostart` to `true`.
 
-### Control a Matter Thread device
-To commission and control a Matter Thread device via the OTBR Snap, please refer to the [documentation](https://canonical-matter.readthedocs-hosted.com/en/latest/how-to/chip-tool-commission-and-control/).
-
 ### Pre-Shared Key for the Commissioner (PSKc) generator
 
 To authenticate an external Thread Commissioner to a Thread network:
