@@ -41,7 +41,7 @@ sudo snap install --dangerous *.snap
 ### Connect interfaces
 
 When installing this snap from the store, some interfaces are automatically connected.
-If you install the snap from a local file, like the one you built yourself, you need to connect these interfaces manually:
+If you install the locally built snap, you need to connect these interfaces manually:
 
 ```bash
 # Allow DNS-SD registration and discovery
