@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/canonical/matter-snap-testing/env"
 	"github.com/canonical/matter-snap-testing/utils"
 )
 
@@ -49,16 +50,16 @@ func setup() (teardown func(), err error) {
 		log.Println("[TEARDOWN]")
 		utils.SnapDumpLogs(nil, start, otbrSnap)
 
-		log.Println("Removing installed snap:", !utils.SkipTeardownRemoval)
-		if !utils.SkipTeardownRemoval {
+		log.Println("Removing installed snap:", env.Teardown())
+		if env.Teardown() {
 			utils.SnapRemove(nil, otbrSnap)
 		}
 	}
 
-	if utils.LocalServiceSnap() {
-		err = utils.SnapInstallFromFile(nil, utils.LocalServiceSnapPath)
+	if env.SnapPath() != "" {
+		err = utils.SnapInstallFromFile(nil, env.SnapPath())
 	} else {
-		err = utils.SnapInstallFromStore(nil, otbrSnap, utils.ServiceChannel)
+		err = utils.SnapInstallFromStore(nil, otbrSnap, env.SnapChannel())
 	}
 	if err != nil {
 		teardown()
