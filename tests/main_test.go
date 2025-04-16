@@ -22,7 +22,7 @@ const (
 
 	defaultWebGUIPort = "80"
 
-	defaultRadioURL = "'spinel+hdlc+forkpty:///var/snap/openthread-border-router/common/ot-rcp-simulator-thread-reference-20230119-amd64?forkpty-arg=1'"
+	defaultRadioURL = "spinel+hdlc+forkpty:///var/snap/openthread-border-router/common/ot-rcp-simulator-thread-reference-20230119-amd64?forkpty-arg=1"
 )
 
 var infraInterfaceValue = defaultInfraInterfaceValue
