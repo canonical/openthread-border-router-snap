@@ -61,6 +61,7 @@ jobs:
         env:
           TEARDOWN: false
           SNAP_PATH: ../${{ steps.snapcraft.outputs.snap }}
+          INFRA_IF: "eth0"
         run: |
           go test -failfast -p 1 -timeout 30m -v
 
