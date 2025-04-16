@@ -26,6 +26,10 @@ jobs:
     runs-on: ${{ matrix.runs.runner }}
 
     steps:
+      - name: Install Git LFS
+        run: |
+          sudo apt install git-lfs
+
       - name: Checkout code
         uses: actions/checkout@v4
         with:
