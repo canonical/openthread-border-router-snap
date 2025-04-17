@@ -28,7 +28,7 @@ jobs:
     steps:
       - name: Install Git LFS
         run: |
-          sudo apt install git-lfs
+          sudo apt-get -y install git-lfs
 
       - name: Checkout code
         uses: actions/checkout@v4
@@ -68,6 +68,7 @@ jobs:
           TEARDOWN: false
           SNAP_PATH: ../${{ steps.snapcraft.outputs.snap }}
           INFRA_IF: "eth0"
+          RADIO_URL: "spinel+hdlc+forkpty:///var/snap/openthread-border-router/common/ot-rcp-${{matrix.runs.architecture}}?forkpty-arg=1"
         run: |
           go test -failfast -p 1 -timeout 30m -v
 
