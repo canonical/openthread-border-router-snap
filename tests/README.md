@@ -12,7 +12,7 @@ where:
 # Override behavior
 Use environment variables, as defined in [utils/env.go](https://github.com/canonical/matter-snap-testing/blob/main/utils/env.go).
 
-For the infrastructure interface name, the default value is "wlan0". 
+For the infrastructure interface name, the default value is the first interface with a default route set. 
 To override it during the Go test, run:
 
 ```bash

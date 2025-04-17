@@ -3,6 +3,7 @@ package tests
 import (
 	"log"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -87,10 +88,20 @@ func setup() (teardown func(), err error) {
 	// Get and set infrastructure interface
 	if v := os.Getenv(infraInterfaceEnv); v != "" {
 		infraInterfaceValue = v
-		utils.SnapSet(nil, otbrSnap, infraInterfaceKey, infraInterfaceValue)
 	} else {
-		utils.SnapSet(nil, otbrSnap, infraInterfaceKey, defaultInfraInterfaceValue)
+		// Find the default interface for the local system based on default route
+		var stdout, stderr string
+		stdout, stderr, err = utils.Exec(nil, "ip route | grep default | sed -e \"s/^.*dev.//\" -e \"s/.proto.*//\"")
+		if err != nil {
+			log.Printf("[ERROR] %v\n%s", err, stderr)
+			teardown()
+			return
+		}
+		interfaces := strings.Split(stdout, "\n")
+		// There could be multiple interfaces with a default route. Use the first one.
+		infraInterfaceValue = interfaces[0]
 	}
+	utils.SnapSet(nil, otbrSnap, infraInterfaceKey, infraInterfaceValue)
 
 	return
 }
