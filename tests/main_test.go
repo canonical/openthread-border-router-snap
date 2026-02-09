@@ -23,12 +23,13 @@ const (
 
 	defaultWebGUIPort = "80"
 
-	defaultRadioURL = "spinel+hdlc+forkpty:///var/snap/openthread-border-router/common/ot-rcp-simulator-thread-reference-20230119-amd64?forkpty-arg=1"
-	radioUrlKey     = "radio-url"
-	radioUrlEnv     = "RADIO_URL"
+	defaultRadioUrlValue = "spinel+hdlc+forkpty:///var/snap/openthread-border-router/common/ot-rcp-simulator-thread-reference-20230119-amd64?forkpty-arg=1"
+	radioUrlKey          = "radio-url"
+	radioUrlEnv          = "RADIO_URL"
 )
 
 var infraInterfaceValue = defaultInfraInterfaceValue
+var radioUrlValue = defaultRadioUrlValue
 
 func TestMain(m *testing.M) {
 	teardown, err := setup()
@@ -80,9 +81,19 @@ func setup() (teardown func(), err error) {
 	// Copy and set simulated RCP
 	utils.Exec(nil, "sudo cp ot-rcp-* /var/snap/openthread-border-router/common/")
 	if v := os.Getenv(radioUrlEnv); v != "" {
-		utils.SnapSet(nil, otbrSnap, radioUrlKey, v)
+		radioUrlValue = v
 	} else {
-		utils.SnapSet(nil, otbrSnap, radioUrlKey, defaultRadioURL)
+		radioUrlValue = defaultRadioUrlValue
+	}
+	utils.SnapSet(nil, otbrSnap, radioUrlKey, radioUrlValue)
+
+	// Check that the radio path exists
+	filePath, _, _ := strings.Cut(radioUrlValue, "?")
+	filePath = strings.TrimPrefix(filePath, "spinel+hdlc+forkpty://")
+	_, err = os.Stat(filePath)
+	if err != nil {
+		log.Println("[ERROR]", err)
+		teardown()
 	}
 
 	// Get and set infrastructure interface

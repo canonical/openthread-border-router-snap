@@ -24,7 +24,7 @@ INFRA_IF="eth0" go test -v -failfast -count 1
 In this test, a pre-built RCP simulator will be utilized. 
 The RCP simulator can be built by running the following commands:
 ```bash
-git clone https://github.com/openthread/openthread.git --branch=thread-reference-20230119
+git clone https://github.com/openthread/openthread.git --branch=thread-reference-20230706
 cd openthread
 ./script/bootstrap
 ./script/cmake-build simulation
