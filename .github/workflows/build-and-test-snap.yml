@@ -1,22 +1,39 @@
-name: Build & Test
+name: Snap CI
 
 on:
+  schedule:
+    - cron: "20 2 * * 1" # Monday mornings 02:20 UTC
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   # Allow manual trigger
   workflow_dispatch:
 
+env:
+  SNAP_NAME: openthread-border-router
+
 jobs:
   build:
-    outputs:
-      snap: ${{ steps.snapcraft.outputs.snap }}
-    runs-on: ubuntu-latest
+    name: Build, Test, Publish
+    strategy:
+      matrix:
+        runs:
+          - architecture: amd64
+            runner: ubuntu-latest
+          - architecture: arm64
+            runner: [self-hosted, ARM64, Linux]
+    runs-on: ${{ matrix.runs.runner }}
+
     steps:
+      - name: Install Git LFS
+        run: |
+          sudo apt-get -y install git-lfs
 
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          lfs: true
 
       - name: Build snap
         uses: snapcore/action-build@v1
@@ -25,46 +42,58 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ steps.snapcraft.outputs.snap }}
+          name: ${{env.SNAP_NAME}}_${{github.run_number}}_${{matrix.runs.architecture}}
           path: ${{ steps.snapcraft.outputs.snap }}
           if-no-files-found: error
-  
-  test:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
 
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Publish snap to edge
+        uses: snapcore/action-publish@v1
+        if: github.ref == 'refs/heads/main'
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
         with:
-          lfs: true
-      
-      - name: Download locally built snap
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ needs.build.outputs.snap }}
+          snap: ${{ steps.snapcraft.outputs.snap }}
+          release: latest/edge
 
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.*'
+          go-version: "1.*"
           cache: false
 
       - name: Run tests
         shell: bash
         working-directory: tests
         env:
-          SKIP_TEARDOWN_REMOVAL: true
-          LOCAL_SERVICE_SNAP: ../${{ needs.build.outputs.snap }}
-          INFRA_IF: "eth0"
+          TEARDOWN: false
+          SNAP_PATH: ../${{ steps.snapcraft.outputs.snap }}
+          RADIO_URL: "spinel+hdlc+forkpty:///var/snap/openthread-border-router/common/ot-rcp-${{matrix.runs.architecture}}?forkpty-arg=1"
         run: |
-          # Override the infrastructure interface for GitHub Action
           go test -failfast -p 1 -timeout 30m -v
 
       - name: Upload snap logs
-        if: always() 
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: logs
-          path: tests/*.log
+          name: logs_${{ github.run_number}}_${{matrix.runs.architecture}}
+          path: tests/logs/*.log
 
+  promote-beta:
+    name: Promote to Beta
+    # Only promote if we are on the main branch
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - name: Install Snapcraft
+        run: |
+          sudo snap install snapcraft --classic
+          echo /snap/bin >> $GITHUB_PATH
+        shell: bash
+
+      - name: Promote Snap
+        env: # Workaround for https://github.com/snapcore/snapcraft/issues/4439
+          SNAPCRAFT_HAS_TTY: "true"
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
+        run: |
+          yes | snapcraft promote $SNAP_NAME --from-channel latest/edge --to-channel latest/beta

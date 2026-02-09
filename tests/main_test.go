@@ -3,9 +3,11 @@ package tests
 import (
 	"log"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
+	"github.com/canonical/matter-snap-testing/env"
 	"github.com/canonical/matter-snap-testing/utils"
 )
 
@@ -21,10 +23,13 @@ const (
 
 	defaultWebGUIPort = "80"
 
-	defaultRadioURL = "'spinel+hdlc+forkpty:///var/snap/openthread-border-router/common/ot-rcp-simulator-thread-reference-20230119-amd64?forkpty-arg=1'"
+	defaultRadioUrlValue = "spinel+hdlc+forkpty:///var/snap/openthread-border-router/common/ot-rcp-simulator-thread-reference-20230119-amd64?forkpty-arg=1"
+	radioUrlKey          = "radio-url"
+	radioUrlEnv          = "RADIO_URL"
 )
 
 var infraInterfaceValue = defaultInfraInterfaceValue
+var radioUrlValue = defaultRadioUrlValue
 
 func TestMain(m *testing.M) {
 	teardown, err := setup()
@@ -49,16 +54,16 @@ func setup() (teardown func(), err error) {
 		log.Println("[TEARDOWN]")
 		utils.SnapDumpLogs(nil, start, otbrSnap)
 
-		log.Println("Removing installed snap:", !utils.SkipTeardownRemoval)
-		if !utils.SkipTeardownRemoval {
+		log.Println("Removing installed snap:", env.Teardown())
+		if env.Teardown() {
 			utils.SnapRemove(nil, otbrSnap)
 		}
 	}
 
-	if utils.LocalServiceSnap() {
-		err = utils.SnapInstallFromFile(nil, utils.LocalServiceSnapPath)
+	if env.SnapPath() != "" {
+		err = utils.SnapInstallFromFile(nil, env.SnapPath())
 	} else {
-		err = utils.SnapInstallFromStore(nil, otbrSnap, utils.ServiceChannel)
+		err = utils.SnapInstallFromStore(nil, otbrSnap, env.SnapChannel())
 	}
 	if err != nil {
 		teardown()
@@ -74,16 +79,40 @@ func setup() (teardown func(), err error) {
 	utils.SnapConnect(nil, otbrSnap+":bluez", "")
 
 	// Copy and set simulated RCP
-	utils.Exec(nil, "sudo cp ot-rcp-simulator-thread-reference-20230119-amd64 /var/snap/openthread-border-router/common/")
-	utils.SnapSet(nil, otbrSnap, "radio-url", defaultRadioURL)
+	utils.Exec(nil, "sudo cp ot-rcp-* /var/snap/openthread-border-router/common/")
+	if v := os.Getenv(radioUrlEnv); v != "" {
+		radioUrlValue = v
+	} else {
+		radioUrlValue = defaultRadioUrlValue
+	}
+	utils.SnapSet(nil, otbrSnap, radioUrlKey, radioUrlValue)
+
+	// Check that the radio path exists
+	filePath, _, _ := strings.Cut(radioUrlValue, "?")
+	filePath = strings.TrimPrefix(filePath, "spinel+hdlc+forkpty://")
+	_, err = os.Stat(filePath)
+	if err != nil {
+		log.Println("[ERROR]", err)
+		teardown()
+	}
 
 	// Get and set infrastructure interface
 	if v := os.Getenv(infraInterfaceEnv); v != "" {
 		infraInterfaceValue = v
-		utils.SnapSet(nil, otbrSnap, infraInterfaceKey, infraInterfaceValue)
 	} else {
-		utils.SnapSet(nil, otbrSnap, infraInterfaceKey, defaultInfraInterfaceValue)
+		// Find the default interface for the local system based on default route
+		var stdout, stderr string
+		stdout, stderr, err = utils.Exec(nil, "ip route | grep default | sed -e \"s/^.*dev.//\" -e \"s/.proto.*//\"")
+		if err != nil {
+			log.Printf("[ERROR] %v\n%s", err, stderr)
+			teardown()
+			return
+		}
+		interfaces := strings.Split(stdout, "\n")
+		// There could be multiple interfaces with a default route. Use the first one.
+		infraInterfaceValue = interfaces[0]
 	}
+	utils.SnapSet(nil, otbrSnap, infraInterfaceKey, infraInterfaceValue)
 
 	return
 }

@@ -1,10 +1,12 @@
 module openthread-border-router-snap-tests
 
-go 1.21.6
+go 1.22.1
+
+toolchain go1.24.2
 
 require (
-	github.com/canonical/matter-snap-testing v1.0.0-beta
-	github.com/stretchr/testify v1.8.3
+	github.com/canonical/matter-snap-testing v1.0.0-beta.7
+	github.com/stretchr/testify v1.10.0
 )
 
 require (

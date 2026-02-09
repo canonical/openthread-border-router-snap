@@ -31,7 +31,7 @@ func TestConfig(t *testing.T) {
 	t.Run("Set radio-url", func(t *testing.T) {
 		configKey := "radio-url"
 		configValue := "spinel+hdlc+uart:///dev/ttyACM1"
-		defaultConfigValue := defaultRadioURL
+		defaultConfigValue := radioUrlValue
 		expectedLog := "RADIO_URL=" + configValue
 		testSettingSnapOption(t, configKey, configValue, defaultConfigValue, otbrAgentApp, expectedLog)
 	})

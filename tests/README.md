@@ -12,7 +12,7 @@ where:
 # Override behavior
 Use environment variables, as defined in [utils/env.go](https://github.com/canonical/matter-snap-testing/blob/main/utils/env.go).
 
-For the infrastructure interface name, the default value is "wlan0". 
+For the infrastructure interface name, the default value is the first interface with a default route set. 
 To override it during the Go test, run:
 
 ```bash
@@ -24,7 +24,7 @@ INFRA_IF="eth0" go test -v -failfast -count 1
 In this test, a pre-built RCP simulator will be utilized. 
 The RCP simulator can be built by running the following commands:
 ```bash
-git clone https://github.com/openthread/openthread.git --branch=thread-reference-20230119
+git clone https://github.com/openthread/openthread.git --branch=thread-reference-20230706
 cd openthread
 ./script/bootstrap
 ./script/cmake-build simulation
