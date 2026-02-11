@@ -22,7 +22,7 @@ const (
 	defaultWebGUIPort = "8080"
 	webGuiPortKey     = "webgui-port"
 
-	defaultRadioURL = "'spinel+hdlc+forkpty:///var/snap/openthread-border-router/common/ot-rcp-simulator-thread-reference-20230119-amd64?forkpty-arg=1'"
+	defaultRadioURL = "'spinel+hdlc+forkpty:///var/snap/openthread-border-router/common/ot-rcp-simulator-thread-reference-20250612-amd64?forkpty-arg=1'"
 )
 
 var infraInterfaceValue = defaultInfraInterfaceValue
@@ -75,7 +75,7 @@ func setup() (teardown func(), err error) {
 	utils.SnapConnect(nil, otbrSnap+":bluez", "")
 
 	// Copy and set simulated RCP
-	utils.Exec(nil, "sudo cp ot-rcp-simulator-thread-reference-20230119-amd64 /var/snap/openthread-border-router/common/")
+	utils.Exec(nil, "sudo cp ot-rcp-simulator-thread-reference-20250612-amd64 /var/snap/openthread-border-router/common/")
 	utils.SnapSet(nil, otbrSnap, "radio-url", defaultRadioURL)
 
 	// Get and set infrastructure interface

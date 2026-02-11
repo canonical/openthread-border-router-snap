@@ -22,21 +22,25 @@ INFRA_IF="eth0" go test -v -failfast -count 1
 # Build a Radio Co-Processor (RCP) simulator for testing
 
 In this test, a pre-built RCP simulator will be utilized. 
-The RCP simulator can be built by running the following commands:
+The simulator needs to be built on Ubuntu 22.04 to be compatible with the glibc that will be available to this snap that uses the core22 base.
+A multipass VM can be used for this.
+
 ```bash
-git clone https://github.com/openthread/openthread.git --branch=thread-reference-20230119
+git clone https://github.com/openthread/openthread.git --branch=thread-reference-20250612
 cd openthread
 ./script/bootstrap
 ./script/cmake-build simulation
 ```
 
-Once built, it needs to be relocated to a directory visible to OTBR snap 
-and subsequently passed to OTBR snap using snap options during testing:
+Once built, copy the simulator binary from the Multipass VM into this directory, and rename it to `ot-rcp-simulator-thread-reference-20250612-amd64`.
 ```bash
-sudo cp openthread/build/simulation/examples/apps/ncp/ot-rcp/ot-rcp-simulator-thread-reference-20230119-amd64 \
-    /var/snap/openthread-border-router/common/
+cp build/simulation/examples/apps/ncp/ot-rcp ~/<host-home-dir>/openthread-border-router-snap/tests/ot-rcp-simulator-thread-reference-20250612-amd64
+```
+
+During testing the tests will copy the simulator into the `$SNAP_COMMON` directory,
+and the `radio-url` will be set to its path.
+```bash
 snap set openthread-border-router radio-url='spinel+hdlc+forkpty:///var/snap/openthread-border-router/common/ot-rcp-simulator-thread-reference-20230119-amd64?forkpty-arg=1''
 ```
 
 For additional information regarding RCP simulation, please refer to the [openthread simulation posix](https://openthread.io/codelabs/openthread-simulation-posix#3).
-
