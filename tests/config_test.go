@@ -72,8 +72,8 @@ func TestConfig(t *testing.T) {
 		utils.WaitServiceOnline(t, 10, defaultWebGUIPort)
 	})
 	t.Run("Set webgui-port", func(t *testing.T) {
-		configKey := "webgui-port"
-		configValue := "90"
+		configKey := webGuiPortKey
+		configValue := "8090"
 		defaultConfigValue := defaultWebGUIPort
 
 		t.Cleanup(func() {
