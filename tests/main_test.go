@@ -19,7 +19,8 @@ const (
 	infraInterfaceKey          = "infra-if"
 	infraInterfaceEnv          = "INFRA_IF"
 
-	defaultWebGUIPort = "80"
+	defaultWebGUIPort = "8080"
+	webGuiPortKey     = "webgui-port"
 
 	defaultRadioURL = "'spinel+hdlc+forkpty:///var/snap/openthread-border-router/common/ot-rcp-simulator-thread-reference-20230119-amd64?forkpty-arg=1'"
 )
@@ -84,6 +85,9 @@ func setup() (teardown func(), err error) {
 	} else {
 		utils.SnapSet(nil, otbrSnap, infraInterfaceKey, defaultInfraInterfaceValue)
 	}
+
+	// Change webgui port to non-privileged for CI runners
+	utils.SnapSet(nil, otbrSnap, webGuiPortKey, defaultWebGUIPort)
 
 	return
 }

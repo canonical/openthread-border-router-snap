@@ -43,6 +43,7 @@ func TestConfig(t *testing.T) {
 
 		t.Cleanup(func() {
 			utils.SnapSet(t, otbrSnap, configKey, defaultConfigValue)
+			resetServiceFailureCount(t)
 			utils.SnapStop(t, otbrSnap)
 		})
 
@@ -61,6 +62,7 @@ func TestConfig(t *testing.T) {
 
 		t.Cleanup(func() {
 			utils.SnapSet(t, otbrSnap, configKey, defaultConfigValue)
+			resetServiceFailureCount(t)
 			utils.SnapStop(t, otbrSnap)
 		})
 
@@ -70,12 +72,13 @@ func TestConfig(t *testing.T) {
 		utils.WaitServiceOnline(t, 10, defaultWebGUIPort)
 	})
 	t.Run("Set webgui-port", func(t *testing.T) {
-		configKey := "webgui-port"
-		configValue := "90"
+		configKey := webGuiPortKey
+		configValue := "8090"
 		defaultConfigValue := defaultWebGUIPort
 
 		t.Cleanup(func() {
 			utils.SnapSet(t, otbrSnap, configKey, defaultConfigValue)
+			resetServiceFailureCount(t)
 			utils.SnapStop(t, otbrSnap)
 		})
 
@@ -89,6 +92,7 @@ func TestConfig(t *testing.T) {
 
 	t.Run("Set autostart", func(t *testing.T) {
 		t.Cleanup(func() {
+			resetServiceFailureCount(t)
 			utils.SnapStop(t, otbrSnap)
 		})
 
@@ -112,6 +116,7 @@ func testSettingSnapOption(t *testing.T, configKey, configValue, defaultConfigVa
 	utils.SnapStop(t, otbrSnap)
 
 	t.Cleanup(func() {
+		resetServiceFailureCount(t)
 		utils.SnapSet(t, otbrSnap, configKey, defaultConfigValue)
 		utils.SnapStop(t, otbrSnap)
 	})
@@ -145,4 +150,14 @@ func waitForApplicationLogMessage(t *testing.T, application, expectedLog string,
 	}
 
 	t.Fatalf("Time out: reached max %d retries.", maxRetry)
+}
+
+func resetServiceFailureCount(t *testing.T) {
+	command := "sudo systemctl reset-failed snap.openthread-border-router.otbr-agent.service"
+	output, err := exec.Command("/bin/bash", "-c", command).CombinedOutput()
+	t.Logf("[exec] %s", command)
+	if err != nil {
+		// Ignore error, just log it
+		t.Log(string(output))
+	}
 }
