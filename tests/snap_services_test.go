@@ -27,6 +27,6 @@ func TestSnapServicesStatus(t *testing.T) {
 	utils.WaitForLogMessage(t, otbrWebApp, "Border router web started", start)
 	require.True(t, utils.SnapServicesActive(t, otbrWebApp))
 
-	utils.WaitForLogMessage(t, otbrAgentApp, "Start Thread Border Agent: OK", start)
+	utils.WaitForLogMessage(t, otbrAgentApp, "[INFO]-BA------: Start Thread Border Agent", start)
 	require.True(t, utils.SnapServicesActive(t, otbrAgentApp))
 }
