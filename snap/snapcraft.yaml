@@ -170,12 +170,6 @@ parts:
       OTBR_OPTIONS+=" -DWEB_CFLAGS=-DOPENTHREAD_POSIX_DAEMON_SOCKET_NAME=\"$SNAP_RUN_OTBR.sock\""
       # OTBR_OPTIONS+=" -DCMAKE_BUILD_TYPE=Debug"
 
-      # Fix missing entry in cmake file.
-      sed -i '/^target_include_directories/i \
-      target_compile_options(otbr-web PRIVATE\
-      )\
-      ' src/web/CMakeLists.txt
-
       # Add the compile option to override the posix socket
       sed -i '/^target_include_directories/i \
       target_compile_options(otbr-web PRIVATE\
