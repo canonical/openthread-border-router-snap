@@ -4,11 +4,16 @@ summary: Snap packaging of OpenThread Border Router project for POSIX systems
 description: Refer to https://snapcraft.io/openthread-border-router
 adopt-info: otbr
 
-base: core22
+base: core24
 
-architectures:
-  - build-on: amd64
-  - build-on: arm64
+platforms:
+  amd64:
+    build-on: amd64
+    build-for: amd64
+  arm64:
+    build-on: arm64
+    build-for: arm64
+
 
 grade: devel
 confinement: strict
@@ -108,6 +113,7 @@ parts:
       - build-bin
     source: https://github.com/openthread/ot-br-posix.git
     source-tag: thread-reference-20250612
+    # source-branch: main
     source-depth: 1
     plugin: nil
     build-packages: 
@@ -145,7 +151,7 @@ parts:
       - dhcpcd5
       - libatm1
       - libjsoncpp-dev
-      - libprotobuf-lite23
+      - libprotobuf-lite32t64
     override-build: |
       craftctl set version="$(git describe --tags)+snap"
 
@@ -163,7 +169,13 @@ parts:
       OTBR_OPTIONS+=" -DOT_CFLAGS=-DOPENTHREAD_POSIX_CONFIG_DAEMON_SOCKET_BASENAME=\"$SNAP_RUN_OTBR\""
       OTBR_OPTIONS+=" -DWEB_CFLAGS=-DOPENTHREAD_POSIX_DAEMON_SOCKET_NAME=\"$SNAP_RUN_OTBR.sock\""
       # OTBR_OPTIONS+=" -DCMAKE_BUILD_TYPE=Debug"
-      
+
+      # Fix missing entry in cmake file.
+      sed -i '/^target_include_directories/i \
+      target_compile_options(otbr-web PRIVATE\
+      )\
+      ' src/web/CMakeLists.txt
+
       # Add the compile option to override the posix socket
       sed -i '/^target_compile_options/a ${WEB_CFLAGS}' src/web/CMakeLists.txt
 
