@@ -61,7 +61,6 @@ apps:
       - network 
       - network-bind
       - network-control
-      - avahi-control
       - firewall-control
       # Acess bluetooth for device discovery over BLE
       - bluetooth-control
@@ -81,7 +80,6 @@ apps:
     plugs:
       - network
       - network-bind
-    
 
   ot-ctl:
     command: bin/ot-ctl
@@ -123,8 +121,6 @@ parts:
       - ninja-build
       - libcpputest-dev
       - libdbus-1-dev
-      - libavahi-common-dev 
-      - libavahi-client-dev
       - libjsoncpp-dev
       - libprotobuf-dev
       - protobuf-compiler
@@ -142,7 +138,6 @@ parts:
       - iproute2
       - iputils-ping
       - rsyslog
-      - libavahi-client3
       - iptables
       - ipset
       - dnsmasq-base
@@ -186,7 +181,7 @@ parts:
       PLATFORM=ubuntu \
       BUILD_DIR=$PWD/build \
       INFRA_IF_NAME=wlan0 \
-      OTBR_MDNS=avahi \
+      OTBR_MDNS=openthread \
         $SNAPCRAFT_STAGE/snap/bin/otbr-build.sh
       
       # Binary distributions
