@@ -57,8 +57,8 @@ apps:
     daemon: simple
     install-mode: disable
     # restart-delay: 10s
-    plugs: 
-      - network 
+    plugs:
+      - network
       - network-bind
       - network-control
       - avahi-control
@@ -72,7 +72,7 @@ apps:
   # Web GUI
   # The default port is 80
   otbr-web:
-    after: 
+    after:
       - otbr-agent
     command: bin/otbr-web.sh
     daemon: simple
@@ -81,11 +81,11 @@ apps:
     plugs:
       - network
       - network-bind
-    
+
 
   ot-ctl:
     command: bin/ot-ctl
-  
+
   pskc:
     command: bin/pskc
 
@@ -100,7 +100,7 @@ parts:
       # Resources needed for the build
       mkdir -p $SNAPCRAFT_STAGE/snap/bin
       cp -v * $SNAPCRAFT_STAGE/snap/bin
-  
+
   stage-bin:
     plugin: nil
     source: snap/local/stage/bin
@@ -113,17 +113,16 @@ parts:
       - build-bin
     source: https://github.com/openthread/ot-br-posix.git
     source-tag: thread-reference-20250612
-    # source-branch: main
     source-depth: 1
     plugin: nil
-    build-packages: 
+    build-packages:
       - libreadline-dev
       - libncurses-dev
       - build-essential
       - ninja-build
       - libcpputest-dev
       - libdbus-1-dev
-      - libavahi-common-dev 
+      - libavahi-common-dev
       - libavahi-client-dev
       - libjsoncpp-dev
       - libprotobuf-dev
@@ -170,14 +169,12 @@ parts:
       OTBR_OPTIONS+=" -DWEB_CFLAGS=-DOPENTHREAD_POSIX_DAEMON_SOCKET_NAME=\"$SNAP_RUN_OTBR.sock\""
       # OTBR_OPTIONS+=" -DCMAKE_BUILD_TYPE=Debug"
 
-      # Fix missing entry in cmake file.
+      # Add the compile option to override the posix socket
       sed -i '/^target_include_directories/i \
       target_compile_options(otbr-web PRIVATE\
+      ${WEB_CFLAGS}\
       )\
       ' src/web/CMakeLists.txt
-
-      # Add the compile option to override the posix socket
-      sed -i '/^target_compile_options/a ${WEB_CFLAGS}' src/web/CMakeLists.txt
 
       # TODO: Avoid setting INFRA_IF_NAME here
       # The value is passed to cmake-build and then added to /etc/default/otbr-agent
