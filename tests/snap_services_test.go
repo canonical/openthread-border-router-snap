@@ -20,13 +20,14 @@ func TestSnapServicesStatus(t *testing.T) {
 	utils.SnapStart(nil, otbrSnap)
 
 	// Oneshot service
-	utils.WaitForLogMessage(t, otbrSetupApp, "OTBR completed oneshot setup", start)
+	waitForLogMessage(t, otbrSetupApp, "OTBR completed oneshot setup", start)
 	require.False(t, utils.SnapServicesActive(t, otbrSetupApp))
 
 	// Active services
-	utils.WaitForLogMessage(t, otbrWebApp, "Border router web started", start)
+	waitForLogMessage(t, otbrWebApp, "Border router web started", start)
 	require.True(t, utils.SnapServicesActive(t, otbrWebApp))
 
-	utils.WaitForLogMessage(t, otbrAgentApp, "[INFO]-BA------: Start Thread Border Agent", start)
+	// [I] BbrManager----: Start Backbone TMF agent: OK
+	waitForLogMessage(t, otbrAgentApp, "Start Backbone TMF agent: OK", start)
 	require.True(t, utils.SnapServicesActive(t, otbrAgentApp))
 }

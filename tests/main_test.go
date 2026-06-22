@@ -3,6 +3,7 @@ package tests
 import (
 	"log"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -90,4 +91,21 @@ func setup() (teardown func(), err error) {
 	utils.SnapSet(nil, otbrSnap, webGuiPortKey, defaultWebGUIPort)
 
 	return
+}
+
+func waitForLogMessage(t *testing.T, snap, expectedLog string, since time.Time) {
+	const maxRetry = 30
+
+	for i := 1; i <= maxRetry; i++ {
+		time.Sleep(1 * time.Second)
+		t.Logf("Retry %d/%d: Waiting for expected content in logs: %s", i, maxRetry, expectedLog)
+
+		logs := utils.SnapLogs(t, since, snap)
+		if strings.Contains(logs, expectedLog) {
+			t.Logf("Found expected content in logs: %s", expectedLog)
+			return
+		}
+	}
+
+	t.Fatalf("Time out: reached max %d retries.", maxRetry)
 }
