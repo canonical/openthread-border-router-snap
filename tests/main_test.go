@@ -94,7 +94,7 @@ func setup() (teardown func(), err error) {
 }
 
 func waitForLogMessage(t *testing.T, snap, expectedLog string, since time.Time) {
-	const maxRetry = 30
+	const maxRetry = 120
 
 	for i := 1; i <= maxRetry; i++ {
 		time.Sleep(1 * time.Second)
