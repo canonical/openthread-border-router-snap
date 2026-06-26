@@ -27,7 +27,7 @@ func TestSnapServicesStatus(t *testing.T) {
 	waitForLogMessage(t, otbrWebApp, "Border router web started", start)
 	require.True(t, utils.SnapServicesActive(t, otbrWebApp))
 
-	// [I] BbrManager----: Start Backbone TMF agent: OK
-	waitForLogMessage(t, otbrAgentApp, "Start Backbone TMF agent: OK", start)
+	// Agent started up and is communicating with radio co-processor
+	waitForLogMessage(t, otbrAgentApp, "Radio Co-processor version:", start)
 	require.True(t, utils.SnapServicesActive(t, otbrAgentApp))
 }
