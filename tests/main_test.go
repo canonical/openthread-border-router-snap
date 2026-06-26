@@ -68,7 +68,6 @@ func setup() (teardown func(), err error) {
 	}
 
 	// Connect interfaces
-	utils.SnapConnect(nil, otbrSnap+":avahi-control", "")
 	utils.SnapConnect(nil, otbrSnap+":firewall-control", "")
 	utils.SnapConnect(nil, otbrSnap+":raw-usb", "")
 	utils.SnapConnect(nil, otbrSnap+":network-control", "")
@@ -94,7 +93,7 @@ func setup() (teardown func(), err error) {
 }
 
 func waitForLogMessage(t *testing.T, snap, expectedLog string, since time.Time) {
-	const maxRetry = 120
+	const maxRetry = 30
 
 	for i := 1; i <= maxRetry; i++ {
 		time.Sleep(1 * time.Second)

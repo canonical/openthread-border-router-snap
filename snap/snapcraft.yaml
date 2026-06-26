@@ -62,7 +62,7 @@ apps:
       - network-bind
       - network-control
       - firewall-control
-      # Acess bluetooth for device discovery over BLE
+      # Access bluetooth for device discovery over BLE
       - bluetooth-control
       - bluez
       # Access to RCP USB devices

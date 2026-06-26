@@ -67,8 +67,3 @@ jobs:
         with:
           name: logs
           path: tests/*.log
-
-      # This step only runs if any of the steps above fail
-      - name: Setup tmate SSH session on failure
-        if: ${{ failure() }}
-        uses: mxschmitt/action-tmate@v3
