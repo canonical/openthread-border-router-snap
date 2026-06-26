@@ -93,18 +93,20 @@ func setup() (teardown func(), err error) {
 }
 
 func waitForLogMessage(t *testing.T, snap, expectedLog string, since time.Time) {
+	t.Helper()
+
 	const maxRetry = 30
 
 	for i := 1; i <= maxRetry; i++ {
-		time.Sleep(1 * time.Second)
-		t.Logf("Retry %d/%d: Waiting for expected content in logs: %s", i, maxRetry, expectedLog)
-
 		logs := utils.SnapLogs(t, since, snap)
 		if strings.Contains(logs, expectedLog) {
-			t.Logf("Found expected content in logs: %s", expectedLog)
+			t.Logf("Found expected content in %s logs: %s", snap, expectedLog)
 			return
 		}
+
+		t.Logf("Retry %d/%d: waiting for %q in %s logs", i, maxRetry, expectedLog, snap)
+		time.Sleep(1 * time.Second)
 	}
 
-	t.Fatalf("Time out: reached max %d retries.", maxRetry)
+	t.Fatalf("timeout waiting for %q in %s logs after %d retries", expectedLog, snap, maxRetry)
 }
