@@ -26,9 +26,25 @@ func TestThreadNetworkFormation(t *testing.T) {
 	utils.Exec(t, "sudo openthread-border-router.ot-ctl ifconfig up")
 	utils.Exec(t, "sudo openthread-border-router.ot-ctl thread start")
 
-	// thread-reference-20250612: [I] RoutingManager: Added local OMR prefix fd3d:2615:15d6:1::/64 (def-route:yes) in Thread Network Data
-	// v2026.06.0: Updated local OMR prefix fd91:5f71:e04a:1::/64 (prf:low, def-route:yes, origin:self-gen) in NetData
-	waitForLogMessage(t, otbrSnap, "def-route:yes", start)
+	/*
+		Becoming the Leader:
+		The node successfully transitions from having no role to establishing the network.
+		[N] Mle-----------: Role detached -> leader
+	*/
+	waitForLogMessage(t, otbrSnap, "Role detached -> leader", start)
+
+	/*
+		Forming a Partition:
+		The network creates a unique Partition ID, meaning a Thread partition is actively running.
+		[N] Mle-----------: Partition ID 0x6f4f1b4c
+	*/
+	waitForLogMessage(t, otbrSnap, "Partition ID 0x", start)
+	/*
+		Populating the Router Table:
+		The node registers itself correctly in the routing table as the leader.
+		[I] RouterTable---:      2 0x0800 - me - leader
+	*/
+	waitForLogMessage(t, otbrSnap, " - me - leader", start)
 
 	state, _, _ := utils.Exec(t, "sudo openthread-border-router.ot-ctl state | head -n 1")
 	state = strings.TrimRight(state, "\n")
