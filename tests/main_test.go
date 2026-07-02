@@ -3,6 +3,7 @@ package tests
 import (
 	"log"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -67,7 +68,6 @@ func setup() (teardown func(), err error) {
 	}
 
 	// Connect interfaces
-	utils.SnapConnect(nil, otbrSnap+":avahi-control", "")
 	utils.SnapConnect(nil, otbrSnap+":firewall-control", "")
 	utils.SnapConnect(nil, otbrSnap+":raw-usb", "")
 	utils.SnapConnect(nil, otbrSnap+":network-control", "")
@@ -90,4 +90,23 @@ func setup() (teardown func(), err error) {
 	utils.SnapSet(nil, otbrSnap, webGuiPortKey, defaultWebGUIPort)
 
 	return
+}
+
+func waitForLogMessage(t *testing.T, snap, expectedLog string, since time.Time) {
+	t.Helper()
+
+	const maxRetry = 30
+
+	for i := 1; i <= maxRetry; i++ {
+		logs := utils.SnapLogs(t, since, snap)
+		if strings.Contains(logs, expectedLog) {
+			t.Logf("Found expected content in %s logs: %s", snap, expectedLog)
+			return
+		}
+
+		t.Logf("Retry %d/%d: waiting for %q in %s logs", i, maxRetry, expectedLog, snap)
+		time.Sleep(1 * time.Second)
+	}
+
+	t.Fatalf("timeout waiting for %q in %s logs after %d retries", expectedLog, snap, maxRetry)
 }

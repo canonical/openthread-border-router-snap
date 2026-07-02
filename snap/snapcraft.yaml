@@ -61,9 +61,8 @@ apps:
       - network
       - network-bind
       - network-control
-      - avahi-control
       - firewall-control
-      # Acess bluetooth for device discovery over BLE
+      # Access bluetooth for device discovery over BLE
       - bluetooth-control
       - bluez
       # Access to RCP USB devices
@@ -112,7 +111,7 @@ parts:
     after:
       - build-bin
     source: https://github.com/openthread/ot-br-posix.git
-    source-tag: thread-reference-20250612
+    source-tag: v2026.06.0
     source-depth: 1
     plugin: nil
     build-packages:
@@ -122,8 +121,6 @@ parts:
       - ninja-build
       - libcpputest-dev
       - libdbus-1-dev
-      - libavahi-common-dev
-      - libavahi-client-dev
       - libjsoncpp-dev
       - libprotobuf-dev
       - protobuf-compiler
@@ -141,7 +138,6 @@ parts:
       - iproute2
       - iputils-ping
       - rsyslog
-      - libavahi-client3
       - iptables
       - ipset
       - dnsmasq-base
@@ -183,7 +179,7 @@ parts:
       PLATFORM=ubuntu \
       BUILD_DIR=$PWD/build \
       INFRA_IF_NAME=wlan0 \
-      OTBR_MDNS=avahi \
+      OTBR_MDNS=openthread \
         $SNAPCRAFT_STAGE/snap/bin/otbr-build.sh
       
       # Binary distributions

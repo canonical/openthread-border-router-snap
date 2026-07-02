@@ -12,6 +12,8 @@ snapctl set radio-url="spinel+hdlc+uart:///dev/ttyACM0"
 snapctl set autostart=false
 snapctl set webgui-listen-address="::"
 snapctl set webgui-port=80
+snapctl set vendor-name="Generic"
+snapctl set vendor-model="OpenThread Border Router" # max 24 chars
 set +x
 
 THREAD_DATA=$SNAP_COMMON/thread-data
