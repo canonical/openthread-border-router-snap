@@ -209,10 +209,7 @@ parts:
     build-packages:
       - git
       - git-lfs
-    override-pull: |
-      # do nothing
     override-build: |
-      set -eo pipefail
       otbr_version=$(cat "$CRAFT_STAGE/otbr-version")
       git_hash=$(git -C "$CRAFT_PROJECT_DIR" describe --always --dirty)
       craftctl set version="${otbr_version}+${git_hash}"
