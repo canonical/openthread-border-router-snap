@@ -2,7 +2,7 @@ name: openthread-border-router
 # license: TBA
 summary: Snap packaging of OpenThread Border Router project for POSIX systems
 description: Refer to https://snapcraft.io/openthread-border-router
-adopt-info: otbr
+adopt-info: version
 
 base: core24
 
@@ -148,7 +148,8 @@ parts:
       - libjsoncpp-dev
       - libprotobuf-lite32t64
     override-build: |
-      craftctl set version="$(git describe --tags)+snap"
+      # Store OTBR tag for version part
+      git describe --tags > $CRAFT_PART_INSTALL/otbr-version
 
       # Setup scripts
       # Remove sudo from scripts
@@ -197,6 +198,24 @@ parts:
              $CRAFT_PART_INSTALL/usr/share/otbr-web/
 
       craftctl default
+    prime:
+      - -otbr-version # version file not needed in final snap
+
+  version:
+    after:
+      - otbr
+    plugin: nil
+    source: .
+    build-packages:
+      - git
+      - git-lfs
+    override-pull: |
+      # do nothing
+    override-build: |
+      set -eo pipefail
+      otbr_version=$(cat "$CRAFT_STAGE/otbr-version")
+      git_hash=$(git -C "$CRAFT_PROJECT_DIR" describe --always --dirty)
+      craftctl set version="${otbr_version}+${git_hash}"
 
   license:
     plugin: nil
