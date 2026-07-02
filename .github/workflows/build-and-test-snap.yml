@@ -12,12 +12,15 @@ jobs:
   build:
     name: Build, Upload, Test
     strategy:
+      fail-fast: false
       matrix:
         runs:
           - architecture: amd64
             runner: ubuntu-24.04
+            run_tests: true
           - architecture: arm64
             runner: ubuntu-24.04-arm
+            run_tests: true
     runs-on: ${{ matrix.runs.runner }}
 
     steps:
@@ -36,12 +39,14 @@ jobs:
           if-no-files-found: error
 
       - name: Setup Go
+        if: matrix.runs.run_tests
         uses: actions/setup-go@v6
         with:
           go-version: '1.*'
           cache: false
 
       - name: Run tests
+        if: matrix.runs.run_tests
         shell: bash
         working-directory: tests
         env:
@@ -53,7 +58,7 @@ jobs:
           go test -failfast -p 1 -timeout 30m -v
 
       - name: Upload snap logs
-        if: always()
+        if: always() && matrix.runs.run_tests
         uses: actions/upload-artifact@v7
         with:
           name: logs-${{ matrix.runs.architecture }}
