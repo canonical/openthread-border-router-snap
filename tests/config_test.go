@@ -159,9 +159,8 @@ func resetServiceFailureCount(t *testing.T) {
 		"snap.openthread-border-router.otbr-web.service",
 	}
 	for _, service := range services {
-		command := "sudo systemctl reset-failed " + service
-		output, err := exec.Command("/bin/bash", "-c", command).CombinedOutput()
-		t.Logf("[exec] %s", command)
+		output, err := exec.Command("sudo", "systemctl", "reset-failed", service).CombinedOutput()
+		t.Logf("[exec] sudo systemctl reset-failed %s", service)
 		if err != nil {
 			// Ignore error, just log it
 			t.Log(string(output))
