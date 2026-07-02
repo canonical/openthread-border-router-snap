@@ -1,6 +1,20 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:base"
+    "config:recommended"
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": [
+        "^snap/snapcraft\\.yaml$"
+      ],
+      "matchStrings": [
+        "source-tag:\\s*(?<currentValue>[^\\s]+)"
+      ],
+      "depNameTemplate": "openthread/ot-br-posix",
+      "datasourceTemplate": "github-releases",
+      "versioningTemplate": "loose"
+    }
   ]
 }
