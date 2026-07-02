@@ -17,10 +17,10 @@ jobs:
         runs:
           - architecture: amd64
             runner: ubuntu-24.04
-            run_tests: true
+            run-tests: true
           - architecture: arm64
             runner: ubuntu-24.04-arm
-            run_tests: true
+            run-tests: false # Included simulator is only for amd64
     runs-on: ${{ matrix.runs.runner }}
 
     steps:
@@ -41,14 +41,14 @@ jobs:
           if-no-files-found: error
 
       - name: Setup Go
-        if: matrix.runs.run_tests
+        if: matrix.runs.run-tests
         uses: actions/setup-go@v6
         with:
           go-version: '1.*'
           cache: false
 
       - name: Run tests
-        if: matrix.runs.run_tests
+        if: matrix.runs.run-tests
         shell: bash
         working-directory: tests
         env:
@@ -60,7 +60,7 @@ jobs:
           go test -failfast -p 1 -timeout 30m -v
 
       - name: Upload snap logs
-        if: always() && matrix.runs.run_tests
+        if: always() && matrix.runs.run-tests
         uses: actions/upload-artifact@v7
         with:
           name: logs-${{ matrix.runs.architecture }}
