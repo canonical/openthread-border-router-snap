@@ -153,11 +153,17 @@ func waitForApplicationLogMessage(t *testing.T, application, expectedLog string,
 }
 
 func resetServiceFailureCount(t *testing.T) {
-	command := "sudo systemctl reset-failed snap.openthread-border-router.otbr-agent.service"
-	output, err := exec.Command("/bin/bash", "-c", command).CombinedOutput()
-	t.Logf("[exec] %s", command)
-	if err != nil {
-		// Ignore error, just log it
-		t.Log(string(output))
+	services := []string{
+		"snap.openthread-border-router.otbr-agent.service",
+		"snap.openthread-border-router.otbr-setup.service",
+		"snap.openthread-border-router.otbr-web.service",
+	}
+	for _, service := range services {
+		output, err := exec.Command("sudo", "systemctl", "reset-failed", service).CombinedOutput()
+		t.Logf("[exec] sudo systemctl reset-failed %s", service)
+		if err != nil {
+			// Ignore error, just log it
+			t.Log(string(output))
+		}
 	}
 }

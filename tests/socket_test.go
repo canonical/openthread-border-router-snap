@@ -13,6 +13,7 @@ func TestSocketFile(t *testing.T) {
 	utils.SnapStop(t, otbrSnap)
 
 	t.Cleanup(func() {
+		resetServiceFailureCount(t)
 		utils.SnapStop(t, otbrSnap)
 	})
 
