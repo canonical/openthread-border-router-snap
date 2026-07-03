@@ -149,7 +149,7 @@ parts:
       - libprotobuf-lite32t64
     override-build: |
       # Store OTBR tag for version part
-      git describe --tags > $CRAFT_PART_INSTALL/otbr-version
+      git describe --tags --always > "$CRAFT_PART_INSTALL/otbr-version"
 
       # Setup scripts
       # Remove sudo from scripts
