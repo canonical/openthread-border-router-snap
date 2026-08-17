@@ -43,7 +43,7 @@ jobs:
 
       - name: Setup Go
         if: matrix.runs.run-tests
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@v7
         with:
           go-version: '1.*'
           cache: false
