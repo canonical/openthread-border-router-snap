@@ -111,7 +111,7 @@ parts:
     after:
       - build-bin
     source: https://github.com/openthread/ot-br-posix.git
-    source-tag: v2026.08.0
+    source-tag: v2026.09.0
     source-depth: 1
     plugin: nil
     build-packages:
