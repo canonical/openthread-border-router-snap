@@ -21,26 +21,29 @@ INFRA_IF="eth0" go test -v -failfast -count 1
 
 # Build a Radio Co-Processor (RCP) simulator for testing
 
-In this test, a pre-built RCP simulator will be utilized. 
-The simulator needs to be built on Ubuntu 22.04 to be compatible with the glibc that will be available to this snap that uses the core22 base.
-A multipass VM can be used for this.
+The tests use an RCP simulator for the host architecture. Simulators for amd64
+and arm64 are included in the repository via Git LFS. Build replacement
+simulators on Ubuntu 24.04 for the target architecture so they are compatible
+with the snap's core24 base.
+A Multipass VM can be used for this. Install `g++`, `cmake`, and `ninja-build`
+before building.
 
 ```bash
 git clone https://github.com/openthread/openthread.git --branch=thread-reference-20250612
 cd openthread
-./script/bootstrap
-./script/cmake-build simulation
+OT_CMAKE_NINJA_TARGET=ot-rcp ./script/cmake-build simulation
 ```
 
-Once built, copy the simulator binary from the Multipass VM into this directory, and rename it to `ot-rcp-simulator-thread-reference-20250612-amd64`.
+Once built, copy the simulator binary into this directory with the architecture
+suffix used by Go (`amd64` or `arm64`). For example, on arm64:
 ```bash
-cp build/simulation/examples/apps/ncp/ot-rcp ~/<host-home-dir>/openthread-border-router-snap/tests/ot-rcp-simulator-thread-reference-20250612-amd64
+cp build/simulation/examples/apps/ncp/ot-rcp ~/<host-home-dir>/openthread-border-router-snap/tests/ot-rcp-simulator-thread-reference-20250612-arm64
 ```
 
 During testing the tests will copy the simulator into the `$SNAP_COMMON` directory,
 and the `radio-url` will be set to its path.
 ```bash
-snap set openthread-border-router radio-url='spinel+hdlc+forkpty:///var/snap/openthread-border-router/common/ot-rcp-simulator-thread-reference-20230119-amd64?forkpty-arg=1''
+snap set openthread-border-router radio-url='spinel+hdlc+forkpty:///var/snap/openthread-border-router/common/ot-rcp-simulator-thread-reference-20250612-amd64?forkpty-arg=1'
 ```
 
 For additional information regarding RCP simulation, please refer to the [openthread simulation posix](https://openthread.io/codelabs/openthread-simulation-posix#3).

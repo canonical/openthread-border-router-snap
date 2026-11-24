@@ -1,27 +1,19 @@
-name: Build & Test
+name: PR - Build and test snap
 
 on:
-  push:
-    branches: [ main ]
   pull_request:
     branches: [ main ]
-  # Allow manual trigger
+  # Manual runs build and test the selected ref without publishing.
   workflow_dispatch:
 
 jobs:
   build:
-    name: Build, Upload, Test
+    name: Build and test (${{ matrix.runner }})
     strategy:
       fail-fast: false
       matrix:
-        runs:
-          - architecture: amd64
-            runner: ubuntu-24.04
-            run-tests: true
-          - architecture: arm64
-            runner: ubuntu-24.04-arm
-            run-tests: false # Included simulator is only for amd64
-    runs-on: ${{ matrix.runs.runner }}
+        runner: [ubuntu-24.04, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.runner }}
 
     steps:
       - name: Checkout code
@@ -42,14 +34,12 @@ jobs:
           if-no-files-found: error
 
       - name: Setup Go
-        if: matrix.runs.run-tests
         uses: actions/setup-go@v7
         with:
           go-version: '1.*'
           cache: false
 
       - name: Run tests
-        if: matrix.runs.run-tests
         shell: bash
         working-directory: tests
         env:
@@ -61,8 +51,8 @@ jobs:
           go test -failfast -p 1 -timeout 30m -v
 
       - name: Upload snap logs
-        if: always() && matrix.runs.run-tests
+        if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: logs-${{ matrix.runs.architecture }}
+          name: logs-${{ runner.arch }}
           path: tests/*.log
