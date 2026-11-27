@@ -65,7 +65,7 @@ jobs:
   promote-beta:
     name: Promote edge to beta
     needs: build-test
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - name: Install Snapcraft
         run: |
