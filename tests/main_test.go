@@ -1,8 +1,10 @@
 package tests
 
 import (
+	"fmt"
 	"log"
 	"os"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -22,11 +24,13 @@ const (
 
 	defaultWebGUIPort = "8080"
 	webGuiPortKey     = "webgui-port"
-
-	defaultRadioURL = "'spinel+hdlc+forkpty:///var/snap/openthread-border-router/common/ot-rcp-simulator-thread-reference-20250612-amd64?forkpty-arg=1'"
 )
 
-var infraInterfaceValue = defaultInfraInterfaceValue
+var (
+	infraInterfaceValue = defaultInfraInterfaceValue
+	simulatorName       = "ot-rcp-simulator-thread-reference-20250612-" + runtime.GOARCH
+	defaultRadioURL     = fmt.Sprintf("'spinel+hdlc+forkpty:///var/snap/openthread-border-router/common/%s?forkpty-arg=1'", simulatorName)
+)
 
 func TestMain(m *testing.M) {
 	teardown, err := setup()
@@ -75,7 +79,10 @@ func setup() (teardown func(), err error) {
 	utils.SnapConnect(nil, otbrSnap+":bluez", "")
 
 	// Copy and set simulated RCP
-	utils.Exec(nil, "sudo cp ot-rcp-simulator-thread-reference-20250612-amd64 /var/snap/openthread-border-router/common/")
+	if _, stderr, err := utils.Exec(nil, "sudo cp "+simulatorName+" /var/snap/openthread-border-router/common/"); err != nil {
+		teardown()
+		return nil, fmt.Errorf("copy simulator %s: %w: %s", simulatorName, err, stderr)
+	}
 	utils.SnapSet(nil, otbrSnap, "radio-url", defaultRadioURL)
 
 	// Get and set infrastructure interface

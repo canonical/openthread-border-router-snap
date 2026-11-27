@@ -1,0 +1,81 @@
+name: Main - Publish, test, and promote snap
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: snap-publish
+  queue: max
+
+env:
+  SNAP_NAME: openthread-border-router
+
+jobs:
+  build-test:
+    name: Build, publish to edge, and test (${{ matrix.runner }})
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-24.04, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          lfs: true
+          persist-credentials: false
+
+      - name: Build snap
+        id: snapcraft
+        uses: snapcore/action-build@v1
+
+      - name: Publish snap to edge
+        uses: snapcore/action-publish@v1
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
+        with:
+          snap: ${{ steps.snapcraft.outputs.snap }}
+          release: latest/edge
+
+      - name: Setup Go
+        uses: actions/setup-go@v7
+        with:
+          go-version: '1.*'
+          cache: false
+
+      - name: Run tests against edge
+        working-directory: tests
+        env:
+          SKIP_TEARDOWN_REMOVAL: true
+          SERVICE_CHANNEL: latest/edge
+          INFRA_IF: eth0
+        run: go test -failfast -count 1 -p 1 -timeout 30m -v
+
+      - name: Upload snap logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: logs-${{ github.run_attempt }}-${{ runner.arch }}
+          path: tests/*.log
+
+  promote-beta:
+    name: Promote edge to beta
+    needs: build-test
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Install Snapcraft
+        run: |
+          sudo snap install snapcraft --classic
+          echo /snap/bin >> "$GITHUB_PATH"
+
+      - name: Promote edge to beta
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
+        run: |
+          snapcraft promote "$SNAP_NAME" --yes \
+            --from-channel latest/edge \
+            --to-channel latest/beta

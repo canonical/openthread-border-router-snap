@@ -1,6 +1,8 @@
 package tests
 
 import (
+	"context"
+	"os/exec"
 	"strings"
 	"testing"
 	"time"
@@ -21,6 +23,7 @@ func TestThreadNetworkFormation(t *testing.T) {
 	start := time.Now()
 	utils.SnapStart(nil, otbrSnap)
 
+	waitForOTCtl(t)
 	utils.Exec(t, "sudo openthread-border-router.ot-ctl dataset init new")
 	utils.Exec(t, "sudo openthread-border-router.ot-ctl dataset commit active")
 	utils.Exec(t, "sudo openthread-border-router.ot-ctl ifconfig up")
@@ -49,4 +52,26 @@ func TestThreadNetworkFormation(t *testing.T) {
 	state, _, _ := utils.Exec(t, "sudo openthread-border-router.ot-ctl state | head -n 1")
 	state = strings.TrimRight(state, "\n")
 	require.Equal(t, "leader", state)
+}
+
+func waitForOTCtl(t *testing.T) {
+	t.Helper()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	var lastOutput []byte
+	var lastErr error
+	for {
+		lastOutput, lastErr = exec.CommandContext(ctx, "sudo", "openthread-border-router.ot-ctl", "state").CombinedOutput()
+		if lastErr == nil {
+			return
+		}
+
+		select {
+		case <-ctx.Done():
+			t.Fatalf("timed out waiting for ot-ctl: %v; output: %s", lastErr, lastOutput)
+		case <-time.After(time.Second):
+		}
+	}
 }
